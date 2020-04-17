@@ -1,4 +1,4 @@
-module github.com/curatedlist/go-back
+module github.com/curatedlist/backend
 
 go 1.13
 

@@ -1,2 +1,2 @@
-# go-back
+# backend
 Golang backend implementation

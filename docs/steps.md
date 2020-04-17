@@ -14,6 +14,14 @@ $ go get -u github.com/gin-gonic/gin
 Run it from:
 $ go run cmd/backend/main.go
 
+## Add Dockefile
+
+## Build image
+$ docker build .
+
+## Run image
+$ docker run -p8080:8080 IMAGE 
+
 ## Google Cloud
 
 ### Install the SDK

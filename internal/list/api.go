@@ -21,3 +21,10 @@ func (api *API) FindAll(ctx *gin.Context) {
 	lists := api.Service.FindAll()
 	ctx.JSON(http.StatusOK, gin.H{"lists": lists})
 }
+
+// Get a list by id
+func (api *API) Get(ctx *gin.Context) {
+	id := ctx.Param("id")
+	list := api.Service.Get(id)
+	ctx.JSON(http.StatusOK, gin.H{"list": list})
+}

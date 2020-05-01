@@ -45,6 +45,7 @@ func (server *Server) registerStatusRoutes() *Server {
 func (server *Server) registerListRoutes() *Server {
 	lists := server.router.Group("/lists")
 	lists.GET("", server.listAPI.FindAll)
+	lists.GET("/id/:id", server.listAPI.Get)
 	return server
 }
 

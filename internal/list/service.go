@@ -14,3 +14,8 @@ func NewService(repository Repository) Service {
 func (serv *Service) FindAll() []DTO {
 	return ToDTOs(serv.repository.FindAll())
 }
+
+// Get a list by id
+func (serv *Service) Get(id string) DTO {
+	return ToDTO(serv.repository.Get(id))
+}

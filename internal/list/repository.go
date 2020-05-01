@@ -43,3 +43,20 @@ func (repo *Repository) FindAll() []DatabaseDTO {
 	}
 	return lists
 }
+
+// Get a list by ID
+func (repo *Repository) Get(id string) DatabaseDTO {
+	// Prepare statement for reading data
+	rows, err := repo.db.Query("SELECT list.id, list.name, list.description FROM list WHERE list.id = ?", id)
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	var list DatabaseDTO
+	for rows.Next() {
+		err := rows.Scan(&list.ID, &list.Name, &list.Description)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+	return list
+}

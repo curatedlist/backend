@@ -47,15 +47,19 @@ func (repo *Repository) FindAll() []DatabaseDTO {
 // Get a list by ID
 func (repo *Repository) Get(id string) DatabaseDTO {
 	// Prepare statement for reading data
-	rows, err := repo.db.Query("SELECT list.id, list.name, list.description FROM list WHERE list.id = ?", id)
+	rows, err := repo.db.Query("SELECT list.id, list.name, list.description, item.id, item.name, item.url, item.pic_url FROM list LEFT JOIN item ON item.list_id = list.id WHERE list.id = ?", id)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
 	var list DatabaseDTO
 	for rows.Next() {
-		err := rows.Scan(&list.ID, &list.Name, &list.Description)
+		var item DatabaseItemDTO
+		err := rows.Scan(&list.ID, &list.Name, &list.Description, &item.ID, &item.Name, &item.URL, &item.PicURL)
 		if err != nil {
 			panic(err.Error())
+		}
+		if item.ID.Valid {
+			list.Items = append(list.Items, item)
 		}
 	}
 	return list

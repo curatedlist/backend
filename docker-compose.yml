@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+    app:
+        build:
+            context: . # Use an image built from the specified dockerfile in the current directory.
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+        environment:
+            DATABASE_USER: test
+            DATABASE_PASS: test
+            DATABASE_URL: tcp(cloud-sql-proxy:3306)
+        
+    cloud-sql-proxy:
+        image: gcr.io/cloudsql-docker/gce-proxy:1.11
+        command: /cloud_sql_proxy -instances=curatedlist-project:europe-west1:curatedlist=tcp:0.0.0.0:3306 -credential_file=/.config
+        volumes:
+            # this mounts your application default credential on the container, preventing the
+            # 'invalid json file "/config": google: read JWT from JSON credentials: 'type' field is "authorized_user" (expected "service_account")'
+            # error if you point to the actual credential file directly
+            - ./application_default_credentials.json:/.config
+        ports:
+        - 3306:3306
+    

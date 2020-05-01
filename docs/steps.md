@@ -37,6 +37,20 @@ $ docker build .
 $ docker run -p8080:8080 IMAGE 
 ```
 
+## Docker compose
+
+### Build
+
+```bash
+$ docker-compose build
+```
+
+### Run
+
+```bash
+$ docker-compose up
+```
+
 ## Google Cloud Compute
 
 ### Install the SDK

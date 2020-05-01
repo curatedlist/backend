@@ -22,7 +22,7 @@ func New() *Config {
 		DB: DBConfig{
 			Username: get("DATABASE_USER", "test"),
 			Password: get("DATABASE_PASS", "test"),
-			URL:      get("DATABASE_URL", "tcp(localhost)"),
+			URL:      get("DATABASE_URL", "unix(/cloudsql/curatedlist-project:europe-west1:curatedlist)"),
 		},
 	}
 }

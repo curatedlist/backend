@@ -66,3 +66,19 @@ func (repo *Repository) GetByEmail(email string) DataBaseDTO {
 	}
 	return user
 }
+
+// CreateUser Create an user
+func (repo *Repository) CreateUser(email string) int64 {
+	// Prepare statement for reading data
+	stmt, err := repo.db.Prepare("INSERT INTO user(email) VALUES (?)")
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	result, err := stmt.Exec(email)
+
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	res, _ := result.LastInsertId()
+	return res
+}

@@ -19,3 +19,8 @@ func (serv *Service) Get(id string) DTO {
 func (serv *Service) GetByEmail(email string) DTO {
 	return ToDTO(serv.repository.GetByEmail(email))
 }
+
+// CreateUser creates an user
+func (serv *Service) CreateUser(email string) int64 {
+	return serv.repository.CreateUser(email)
+}

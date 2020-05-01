@@ -33,3 +33,10 @@ func (api *API) GetByEmail(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 	}
 }
+
+// CreateUser create an user
+func (api *API) CreateUser(ctx *gin.Context) {
+	email := ctx.Param("email")
+	id := api.service.CreateUser(email)
+	ctx.JSON(http.StatusOK, gin.H{"id": id})
+}

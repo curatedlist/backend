@@ -1,0 +1,7 @@
+version: "3.7"
+services:
+    app:
+        depends_on:
+            - cloud-sql-proxy
+        environment:
+            DATABASE_URL: tcp(cloud-sql-proxy:3306)

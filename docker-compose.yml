@@ -9,7 +9,7 @@ services:
         environment:
             DATABASE_USER: test
             DATABASE_PASS: test
-            DATABASE_URL: tcp(cloud-sql-proxy:3306)
+            DATABASE_URL: unix(/cloudsql/curatedlist-project:europe-west1:curatedlist)
         
     cloud-sql-proxy:
         image: gcr.io/cloudsql-docker/gce-proxy:1.11

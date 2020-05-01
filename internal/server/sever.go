@@ -4,6 +4,7 @@ import (
 	"backend/internal/list"
 	"backend/internal/user"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +18,7 @@ type Server struct {
 // Init initialize the http server
 func Init(listAPI list.API, userAPI user.API) *Server {
 	server := Server{router: gin.Default(), listAPI: listAPI, userAPI: userAPI}
-	return server.registerAllRoutes()
+	return server.withCors().registerAllRoutes()
 }
 
 // Run starts the http server
@@ -26,6 +27,11 @@ func (server *Server) Run() *Server {
 	if err != nil {
 		panic(err)
 	}
+	return server
+}
+
+func (server *Server) withCors() *Server {
+	server.router.Use(cors.Default())
 	return server
 }
 

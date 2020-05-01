@@ -14,3 +14,8 @@ func NewService(repository Repository) Service {
 func (serv *Service) Get(id string) DTO {
 	return ToDTO(serv.repository.Get(id))
 }
+
+// GetByEmail a list by email
+func (serv *Service) GetByEmail(email string) DTO {
+	return ToDTO(serv.repository.GetByEmail(email))
+}

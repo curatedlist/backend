@@ -52,5 +52,6 @@ func (server *Server) registerListRoutes() *Server {
 func (server *Server) registerUserRoutes() *Server {
 	users := server.router.Group("/users")
 	users.GET("/id/:id", server.userAPI.Get)
+	users.GET("/email/:email", server.userAPI.GetByEmail)
 	return server
 }

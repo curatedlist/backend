@@ -1,15 +1,20 @@
 package server
 
-import "github.com/gin-gonic/gin"
+import (
+	"backend/internal/list"
+
+	"github.com/gin-gonic/gin"
+)
 
 // Server the http Server
 type Server struct {
-	router *gin.Engine
+	router  *gin.Engine
+	listAPI list.API
 }
 
 // Init initialize the http server
-func Init() *Server {
-	server := Server{router: gin.Default()}
+func Init(listAPI list.API) *Server {
+	server := Server{router: gin.Default(), listAPI: listAPI}
 	return server.registerAllRoutes()
 }
 
@@ -23,7 +28,7 @@ func (server *Server) Run() *Server {
 }
 
 func (server *Server) registerAllRoutes() *Server {
-	return server.registerStatusRoutes()
+	return server.registerStatusRoutes().registerListRoutes()
 }
 
 func (server *Server) registerStatusRoutes() *Server {
@@ -32,5 +37,11 @@ func (server *Server) registerStatusRoutes() *Server {
 			"message": "OK",
 		})
 	})
+	return server
+}
+
+func (server *Server) registerListRoutes() *Server {
+	lists := server.router.Group("/lists")
+	lists.GET("", server.listAPI.FindAll)
 	return server
 }

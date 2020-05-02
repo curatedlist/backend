@@ -14,6 +14,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o cmd/backend/main cmd/backend/main.go
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
 FROM alpine
 RUN apk add --no-cache ca-certificates
+ENV DATABASE_URL unix(/cloudsql/curatedlist-project:europe-west1:curatedlist)
 
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/cmd/backend/main /main

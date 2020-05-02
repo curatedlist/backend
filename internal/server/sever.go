@@ -59,6 +59,7 @@ func (server *Server) registerUserRoutes() *Server {
 	users := server.router.Group("/users")
 	users.GET("/id/:id", server.userAPI.Get)
 	users.GET("/email/:email", server.userAPI.GetByEmail)
+	users.PUT("/id/:id", server.userAPI.UpdateUser)
 	users.POST("", server.userAPI.CreateUser)
 	return server
 }

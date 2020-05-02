@@ -40,3 +40,13 @@ func (api *API) CreateUser(ctx *gin.Context) {
 	id := api.service.CreateUser(email)
 	ctx.JSON(http.StatusOK, gin.H{"id": id})
 }
+
+// UpdateUser create an user
+func (api *API) UpdateUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	name := ctx.PostForm("name")
+
+	//name := ctx.Param("name")
+	uid := api.service.UpdateUser(id, name)
+	ctx.JSON(http.StatusOK, gin.H{"id": uid})
+}

@@ -82,3 +82,20 @@ func (repo *Repository) CreateUser(email string) int64 {
 	res, _ := result.LastInsertId()
 	return res
 }
+
+// UpdateUser Create an user
+func (repo *Repository) UpdateUser(id string, name string) int64 {
+	// Prepare statement for reading data
+	fmt.Printf("name : %s, id: %s", name, id)
+	stmt, err := repo.db.Prepare("UPDATE user SET name=? WHERE id =?")
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	result, err := stmt.Exec(name, id)
+
+	if err != nil {
+		panic(err.Error()) // proper error handling instead of panic in your app
+	}
+	res, _ := result.LastInsertId()
+	return res
+}

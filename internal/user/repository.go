@@ -1,41 +1,47 @@
 package user
 
 import (
-	"backend/internal/config"
-	"database/sql"
-	"fmt"
 
 	// Mysql driver
-	_ "github.com/go-sql-driver/mysql"
+	"backend/internal/database"
+
+	"github.com/huandu/go-sqlbuilder"
 )
 
-// Repository the User repository
+// Repository the List repository
 type Repository struct {
-	db *sql.DB
+	db         database.DB
+	userStruct *sqlbuilder.Struct
+	listStruct *sqlbuilder.Struct
 }
 
 // NewRepository returns a Repository
-func NewRepository(conf config.DBConfig) Repository {
-
-	connectionString := fmt.Sprintf("%s:%s@%s/curatedlist", conf.Username, conf.Password, conf.URL)
-	d, err := sql.Open("mysql", connectionString)
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+func NewRepository(db database.DB) Repository {
+	return Repository{
+		db:         db,
+		userStruct: sqlbuilder.NewStruct(new(Aggregate)),
+		listStruct: sqlbuilder.NewStruct(new(ListAggregate)),
 	}
-	return Repository{db: d}
 }
 
 // Get a user from repository by its id
-func (repo *Repository) Get(id string) DataBaseDTO {
-	// Prepare statement for reading data
-	rows, err := repo.db.Query("SELECT user.id, user.name, user.email, user.avatar_url, list.id, list.name, list.description FROM user LEFT JOIN list ON user.id = list.user_id where user.id = ?", id)
+func (repo *Repository) Get(id string) Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description")
+	sb.From("user")
+	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
+	sb.Where(sb.Equal("user.id", id))
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
-	var user DataBaseDTO
+	var user Aggregate
 	for rows.Next() {
-		var list DatabaseListDTO
-		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.AvatarURL, &list.ID, &list.Name, &list.Description)
+		var list ListAggregate
+		its := repo.userStruct.Addr(&user)
+		its = append(its, repo.listStruct.Addr(&list)...)
+		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -47,16 +53,23 @@ func (repo *Repository) Get(id string) DataBaseDTO {
 }
 
 // GetByEmail a user from repository by its email
-func (repo *Repository) GetByEmail(email string) DataBaseDTO {
-	// Prepare statement for reading data
-	rows, err := repo.db.Query("SELECT user.id, user.name, user.email, user.avatar_url, list.id, list.name, list.description FROM user LEFT JOIN list ON user.id = list.user_id where user.email = ?", email)
+func (repo *Repository) GetByEmail(email string) Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description")
+	sb.From("user")
+	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
+	sb.Where(sb.Equal("user.email", email))
+	sql, params := sb.Build()
+	rows, err := repo.db.DB.Query(sql, params...)
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
-	var user DataBaseDTO
+	var user Aggregate
 	for rows.Next() {
-		var list DatabaseListDTO
-		err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.AvatarURL, &list.ID, &list.Name, &list.Description)
+		var list ListAggregate
+		its := repo.userStruct.Addr(&user)
+		its = append(its, repo.listStruct.Addr(&list)...)
+		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -69,15 +82,19 @@ func (repo *Repository) GetByEmail(email string) DataBaseDTO {
 
 // CreateUser Create an user
 func (repo *Repository) CreateUser(email string) int64 {
-	// Prepare statement for reading data
-	stmt, err := repo.db.Prepare("INSERT INTO user(email) VALUES (?)")
+	ib := sqlbuilder.NewInsertBuilder()
+	ib.InsertInto("user")
+	ib.Cols("email")
+	ib.Values(email)
+	sql, args := ib.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
-	result, err := stmt.Exec(email)
+	result, err := stmt.Exec(args)
 
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
 	res, _ := result.LastInsertId()
 	return res
@@ -85,13 +102,16 @@ func (repo *Repository) CreateUser(email string) int64 {
 
 // UpdateUser Create an user
 func (repo *Repository) UpdateUser(id string, name string) int64 {
-	// Prepare statement for reading data
-	fmt.Printf("name : %s, id: %s", name, id)
-	stmt, err := repo.db.Prepare("UPDATE user SET name=? WHERE id =?")
+	ub := sqlbuilder.NewUpdateBuilder()
+	ub.Update("user")
+	ub.Set(ub.Assign("name", name))
+	ub.Where(ub.Equal("id", id))
+	sql, args := ub.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	result, err := stmt.Exec(name, id)
+	result, err := stmt.Exec(args)
 
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app

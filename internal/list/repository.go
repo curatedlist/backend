@@ -1,66 +1,84 @@
 package list
 
 import (
-	"backend/internal/config"
-	"database/sql"
-	"fmt"
 
 	// Mysql driver
-	_ "github.com/go-sql-driver/mysql"
+	"backend/internal/database"
+
+	"github.com/huandu/go-sqlbuilder"
 )
 
 // Repository the List repository
 type Repository struct {
-	db *sql.DB
+	db          database.DB
+	listStruct  *sqlbuilder.Struct
+	ownerStruct *sqlbuilder.Struct
+	itemStruct  *sqlbuilder.Struct
 }
 
 // NewRepository returns a Repository
-func NewRepository(conf config.DBConfig) Repository {
-
-	connectionString := fmt.Sprintf("%s:%s@%s/curatedlist", conf.Username, conf.Password, conf.URL)
-	d, err := sql.Open("mysql", connectionString)
-	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+func NewRepository(db database.DB) Repository {
+	return Repository{
+		db:          db,
+		listStruct:  sqlbuilder.NewStruct(new(Aggregate)),
+		ownerStruct: sqlbuilder.NewStruct(new(OwnerAggregate)),
+		itemStruct:  sqlbuilder.NewStruct(new(ItemAggregate)),
 	}
-	return Repository{db: d}
 }
 
 // FindAll find alls models from repository
-func (repo *Repository) FindAll() []DatabaseDTO {
-	// Prepare statement for reading data
-	rows, err := repo.db.Query("SELECT list.id, list.name, list.description, user.id, user.name, user.email, user.avatar_url FROM list INNER JOIN user ON user.id = list.user_id")
+func (repo *Repository) FindAll() []Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url")
+	sb.From("list")
+	sb.Join("user", "user.id = list.user_id")
+	sql, _ := sb.Build()
+	rows, err := repo.db.DB.Query(sql)
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
-	lists := make([]DatabaseDTO, 0)
+	lists := make([]Aggregate, 0)
 	for rows.Next() {
-		var listDTO DatabaseDTO
-		err := rows.Scan(&listDTO.ID, &listDTO.Name, &listDTO.Description, &listDTO.Owner.ID, &listDTO.Owner.Name, &listDTO.Owner.Email, &listDTO.Owner.AvatarURL)
+		var list Aggregate
+		its := repo.listStruct.Addr(&list)
+		its = append(its, repo.ownerStruct.Addr(&list.Owner)...)
+		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
-		lists = append(lists, listDTO)
+		lists = append(lists, list)
 	}
 	return lists
 }
 
 // Get a list by ID
-func (repo *Repository) Get(id string) DatabaseDTO {
-	// Prepare statement for reading data
-	rows, err := repo.db.Query("SELECT list.id, list.name, list.description, item.id, item.name, item.url, item.pic_url, user.id, user.name, user.email, user.avatar_url FROM list LEFT JOIN item ON item.list_id = list.id INNER JOIN user ON user.id = list.user_id WHERE list.id = ?", id)
+func (repo *Repository) Get(id string) Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.url", "item.pic_url")
+	sb.From("list")
+	sb.Join("user", "user.id = list.user_id")
+	sb.JoinWithOption("LEFT", "item", "item.list_id = list.id")
+	sb.Where(sb.Equal("list.id", id))
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
 	if err != nil {
-		panic(err.Error()) // proper error handling instead of panic in your app
+		panic(err.Error())
 	}
-	var list DatabaseDTO
+
+	var list Aggregate
 	for rows.Next() {
-		var item DatabaseItemDTO
-		err := rows.Scan(&list.ID, &list.Name, &list.Description, &item.ID, &item.Name, &item.URL, &item.PicURL, &list.Owner.ID, &list.Owner.Name, &list.Owner.Email, &list.Owner.AvatarURL)
+		var item ItemAggregate
+		its := repo.listStruct.Addr(&list)
+		its = append(its, repo.ownerStruct.Addr(&list.Owner)...)
+		its = append(its, repo.itemStruct.Addr(&item)...)
+		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
 		if item.ID.Valid {
 			list.Items = append(list.Items, item)
 		}
+
 	}
 	return list
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/internal/config"
+	"backend/internal/database"
 	"backend/internal/list"
 	"backend/internal/server"
 	"backend/internal/user"
@@ -9,10 +10,11 @@ import (
 
 func main() {
 	conf := config.New()
-	listRepository := list.NewRepository(conf.DB)
+	db := database.NewDB(conf.DB)
+	listRepository := list.NewRepository(db)
 	listService := list.NewService(listRepository)
 	listAPI := list.NewAPI(listService)
-	userRepository := user.NewRepository(conf.DB)
+	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 	userAPI := user.NewAPI(userService)
 

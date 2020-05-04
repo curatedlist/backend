@@ -40,8 +40,12 @@ func (api *API) GetByEmail(ctx *gin.Context) {
 
 // CreateUser create an user
 func (api *API) CreateUser(ctx *gin.Context) {
-	email := ctx.Param("email")
-	id := api.service.CreateUser(email)
+	var registerCommand Register
+	err := ctx.BindJSON(&registerCommand)
+	if err != nil {
+		panic(err.Error())
+	}
+	id := api.service.CreateUser(registerCommand.Email)
 	ctx.JSON(http.StatusOK, gin.H{"id": id})
 }
 
@@ -49,8 +53,6 @@ func (api *API) CreateUser(ctx *gin.Context) {
 func (api *API) UpdateUser(ctx *gin.Context) {
 	id := ctx.Param("id")
 	name := ctx.PostForm("name")
-
-	//name := ctx.Param("name")
 	uid := api.service.UpdateUser(id, name)
 	ctx.JSON(http.StatusOK, gin.H{"id": uid})
 }

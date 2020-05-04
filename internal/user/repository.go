@@ -73,7 +73,7 @@ func (repo *Repository) CreateUser(email string) int64 {
 	if err != nil {
 		panic(err.Error())
 	}
-	result, err := stmt.Exec(args)
+	result, err := stmt.Exec(args...)
 
 	if err != nil {
 		panic(err.Error())
@@ -93,7 +93,7 @@ func (repo *Repository) UpdateUser(id string, name string) int64 {
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	result, err := stmt.Exec(args)
+	result, err := stmt.Exec(args...)
 
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app

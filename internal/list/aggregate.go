@@ -4,18 +4,18 @@ import "database/sql"
 
 // Aggregate the Aggregate for List
 type Aggregate struct {
-	ID          uint            `db:"id"`
-	Name        string          `db:"name"`
-	Description string          `db:"description"`
+	ID          sql.NullInt64   `db:"id"`
+	Name        sql.NullString  `db:"name"`
+	Description sql.NullString  `db:"description"`
 	Owner       OwnerAggregate  `db:"-"`
 	Items       []ItemAggregate `db:"-"`
 }
 
 // OwnerAggregate the Aggregate for List
 type OwnerAggregate struct {
-	ID        uint           `db:"id"`
+	ID        sql.NullInt64  `db:"id"`
 	Name      sql.NullString `db:"name"`
-	Email     string         `db:"email"`
+	Email     sql.NullString `db:"email"`
 	AvatarURL sql.NullString `db:"avatar_url"`
 }
 
@@ -29,17 +29,26 @@ type ItemAggregate struct {
 
 // ToItem transforms a item into a itemDTO
 func (item ItemAggregate) ToItem() ItemDTO {
-	return ItemDTO{ID: uint(item.ID.Int64), Name: item.Name.String, URL: item.URL.String, PicURL: item.PicURL.String}
+	if item.ID.Valid {
+		return ItemDTO{ID: uint(item.ID.Int64), Name: item.Name.String, URL: item.URL.String, PicURL: item.PicURL.String}
+	}
+	return ItemDTO{}
 }
 
 // ToOwner transforms a user into a userDTO
 func (owner OwnerAggregate) ToOwner() OwnerDTO {
-	return OwnerDTO{ID: uint(owner.ID), Name: owner.Name.String, Email: owner.Email, AvatarURL: owner.AvatarURL.String}
+	if owner.ID.Valid {
+		return OwnerDTO{ID: uint(owner.ID.Int64), Name: owner.Name.String, Email: owner.Email.String, AvatarURL: owner.AvatarURL.String}
+	}
+	return OwnerDTO{}
 }
 
 // ToList transforms a List into a ListDTO
 func (list Aggregate) ToList() DTO {
-	return DTO{ID: list.ID, Name: list.Name, Description: list.Description, Items: ToItems(list.Items), Owner: list.Owner.ToOwner()}
+	if list.ID.Valid {
+		return DTO{ID: uint(list.ID.Int64), Name: list.Name.String, Description: list.Description.String, Items: ToItems(list.Items), Owner: list.Owner.ToOwner()}
+	}
+	return DTO{}
 }
 
 // ToItems transforms a list of Items into a list of itemsDTO

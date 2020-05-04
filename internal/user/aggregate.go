@@ -22,18 +22,16 @@ type ListAggregate struct {
 func (agg Aggregate) ToUser() DTO {
 	if agg.ID.Valid {
 		return DTO{ID: uint(agg.ID.Int64), Name: agg.Name.String, Email: agg.Email.String, AvatarURL: agg.AvatarURL.String, Lists: ToLists(agg.Lists)}
-	} else {
-		return DTO{}
 	}
+	return DTO{}
 }
 
 // ToList transforms a item into a itemDTO
 func (la ListAggregate) ToList() ListDTO {
 	if la.ID.Valid {
 		return ListDTO{ID: uint(la.ID.Int64), Name: la.Name.String, Description: la.Description.String}
-	} else {
-		return ListDTO{}
 	}
+	return ListDTO{}
 }
 
 // ToLists transforms an array of Lists from the database into a ListDTO

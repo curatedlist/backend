@@ -20,7 +20,11 @@ func NewAPI(serv Service) API {
 func (api *API) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	user := api.service.Get(id)
-	ctx.JSON(http.StatusOK, gin.H{"user": user})
+	if user.ID != 0 {
+		ctx.JSON(http.StatusOK, gin.H{"user": user})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
 }
 
 // GetByEmail an user by Email

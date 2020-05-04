@@ -19,12 +19,21 @@ func NewAPI(serv Service) API {
 // FindAll finds all available lists
 func (api *API) FindAll(ctx *gin.Context) {
 	lists := api.Service.FindAll()
-	ctx.JSON(http.StatusOK, gin.H{"lists": lists})
+	if len(lists) > 0 {
+		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "Not found"})
+	}
+
 }
 
 // Get a list by id
 func (api *API) Get(ctx *gin.Context) {
 	id := ctx.Param("id")
 	list := api.Service.Get(id)
-	ctx.JSON(http.StatusOK, gin.H{"list": list})
+	if list.ID != 0 {
+		ctx.JSON(http.StatusOK, gin.H{"list": list})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": "Not found"})
+	}
 }

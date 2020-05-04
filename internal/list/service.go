@@ -12,10 +12,10 @@ func NewService(repository Repository) Service {
 
 // FindAll finds all the lists availables
 func (serv *Service) FindAll() []DTO {
-	return ToDTOs(serv.repository.FindAll())
+	return ToLists(serv.repository.FindAll())
 }
 
 // Get a list by id
 func (serv *Service) Get(id string) DTO {
-	return ToDTO(serv.repository.Get(id))
+	return serv.repository.Get(id).ToList()
 }

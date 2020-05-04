@@ -12,12 +12,12 @@ func NewService(repository Repository) Service {
 
 // Get a list by id
 func (serv *Service) Get(id string) DTO {
-	return ToDTO(serv.repository.Get(id))
+	return serv.repository.GetByID(id).ToUser()
 }
 
 // GetByEmail a list by email
 func (serv *Service) GetByEmail(email string) DTO {
-	return ToDTO(serv.repository.GetByEmail(email))
+	return serv.repository.GetByEmail(email).ToUser()
 }
 
 // CreateUser creates an user

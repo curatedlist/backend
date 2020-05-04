@@ -24,13 +24,11 @@ func NewRepository(db database.DB) Repository {
 	}
 }
 
-// Get a user from repository by its id
-func (repo *Repository) Get(id string) Aggregate {
-	sb := sqlbuilder.NewSelectBuilder()
+func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggregate {
 	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description")
 	sb.From("user")
 	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
-	sb.Where(sb.Equal("user.id", id))
+	sb.Where(equal)
 	sql, args := sb.Build()
 	rows, err := repo.db.DB.Query(sql, args...)
 	if err != nil {
@@ -52,32 +50,16 @@ func (repo *Repository) Get(id string) Aggregate {
 	return user
 }
 
+// GetByID a user from repository by its id
+func (repo *Repository) GetByID(id string) Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	return repo.getBy(sb, sb.Equal("user.id", id))
+}
+
 // GetByEmail a user from repository by its email
 func (repo *Repository) GetByEmail(email string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description")
-	sb.From("user")
-	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
-	sb.Where(sb.Equal("user.email", email))
-	sql, params := sb.Build()
-	rows, err := repo.db.DB.Query(sql, params...)
-	if err != nil {
-		panic(err.Error())
-	}
-	var user Aggregate
-	for rows.Next() {
-		var list ListAggregate
-		its := repo.userStruct.Addr(&user)
-		its = append(its, repo.listStruct.Addr(&list)...)
-		err := rows.Scan(its...)
-		if err != nil {
-			panic(err.Error())
-		}
-		if list.ID.Valid {
-			user.Lists = append(user.Lists, list)
-		}
-	}
-	return user
+	return repo.getBy(sb, sb.Equal("user.email", email))
 }
 
 // CreateUser Create an user

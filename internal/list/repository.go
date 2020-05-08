@@ -4,6 +4,7 @@ import (
 
 	// Mysql driver
 	"backend/internal/database"
+	"backend/internal/list/commands"
 
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -81,4 +82,24 @@ func (repo *Repository) Get(id string) Aggregate {
 
 	}
 	return list
+}
+
+// CreateList creates a list
+func (repo *Repository) CreateList(userID string, createListCommand commands.CreateList) int64 {
+	ib := sqlbuilder.NewInsertBuilder()
+	ib.InsertInto("list")
+	ib.Cols("name", "description", "user_id")
+	ib.Values(createListCommand.Name, createListCommand.Description, userID)
+	sql, args := ib.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	result, err := stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	res, _ := result.LastInsertId()
+	return res
 }

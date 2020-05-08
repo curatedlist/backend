@@ -1,5 +1,7 @@
 package list
 
+import "backend/internal/list/commands"
+
 // Service is a service that provides basic operations over Lists
 type Service struct {
 	repository Repository
@@ -18,4 +20,9 @@ func (serv *Service) FindAll() []DTO {
 // Get a list by id
 func (serv *Service) Get(id string) DTO {
 	return serv.repository.Get(id).ToList()
+}
+
+// CreateList creates a list
+func (serv *Service) CreateList(userID string, createListCommand commands.CreateList) int64 {
+	return serv.repository.CreateList(userID, createListCommand)
 }

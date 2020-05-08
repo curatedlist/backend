@@ -50,8 +50,9 @@ func (server *Server) registerStatusRoutes() *Server {
 
 func (server *Server) registerListRoutes() *Server {
 	lists := server.router.Group("/lists")
-	lists.GET("", server.listAPI.FindAll)
+	lists.GET("/", server.listAPI.FindAll)
 	lists.GET("/id/:id", server.listAPI.Get)
+	lists.POST("/", server.listAPI.CreateList)
 	return server
 }
 
@@ -60,6 +61,7 @@ func (server *Server) registerUserRoutes() *Server {
 	users.GET("/id/:id", server.userAPI.Get)
 	users.GET("/email/:email", server.userAPI.GetByEmail)
 	users.PUT("/id/:id", server.userAPI.UpdateUser)
-	users.POST("", server.userAPI.CreateUser)
+	users.POST("/", server.userAPI.CreateUser)
+
 	return server
 }

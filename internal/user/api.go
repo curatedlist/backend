@@ -1,6 +1,7 @@
 package user
 
 import (
+	"backend/internal/user/commands"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,7 +41,7 @@ func (api *API) GetByEmail(ctx *gin.Context) {
 
 // CreateUser create an user
 func (api *API) CreateUser(ctx *gin.Context) {
-	var registerCommand Register
+	var registerCommand commands.Register
 	err := ctx.BindJSON(&registerCommand)
 	if err != nil {
 		panic(err.Error())

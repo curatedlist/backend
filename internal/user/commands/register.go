@@ -1,4 +1,4 @@
-package user
+package commands
 
 // Register command
 type Register struct {

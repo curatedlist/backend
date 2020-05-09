@@ -26,3 +26,8 @@ func (serv *Service) Get(id string) DTO {
 func (serv *Service) CreateList(userID string, createListCommand commands.CreateList) int64 {
 	return serv.repository.CreateList(userID, createListCommand)
 }
+
+// CreateItem creates a item for a list
+func (serv *Service) CreateItem(userID string, createItemCommand commands.CreateItem) int64 {
+	return serv.repository.CreateItem(userID, createItemCommand)
+}

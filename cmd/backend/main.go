@@ -11,12 +11,12 @@ import (
 func main() {
 	conf := config.New()
 	db := database.NewDB(conf.DB)
-	listRepository := list.NewRepository(db)
-	listService := list.NewService(listRepository)
-	listAPI := list.NewAPI(listService)
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 	userAPI := user.NewAPI(userService)
+	listRepository := list.NewRepository(db)
+	listService := list.NewService(listRepository)
+	listAPI := list.NewAPI(listService, userService)
 
 	server.Init(listAPI, userAPI).Run()
 }

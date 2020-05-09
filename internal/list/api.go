@@ -2,6 +2,7 @@ package list
 
 import (
 	"backend/internal/list/commands"
+	"backend/internal/user"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,12 +10,13 @@ import (
 
 // API exposes an API
 type API struct {
-	service Service
+	service     Service
+	userService user.Service
 }
 
 // NewAPI constructor of API
-func NewAPI(serv Service) API {
-	return API{service: serv}
+func NewAPI(serv Service, userServ user.Service) API {
+	return API{service: serv, userService: userServ}
 }
 
 // FindAll finds all available lists
@@ -54,6 +56,35 @@ func (api *API) CreateList(ctx *gin.Context) {
 		}
 		id := api.service.CreateList(userID, createListCommand)
 		ctx.JSON(http.StatusOK, gin.H{"id": id})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
+// CreateItem create a item for a list
+func (api *API) CreateItem(ctx *gin.Context) {
+	var createItemCommand commands.CreateItem
+	err := ctx.BindJSON(&createItemCommand)
+	if err != nil {
+		panic(err.Error())
+	}
+	userID := createItemCommand.UserID
+	userDTO := api.userService.Get(userID)
+	if userDTO.ID != 0 {
+		if err != nil {
+			panic(err.Error())
+		}
+		listID := createItemCommand.ListID
+		listDTO := api.service.Get(listID)
+		if listDTO.ID != 0 {
+			if err != nil {
+				panic(err.Error())
+			}
+			id := api.service.CreateItem(listID, createItemCommand)
+			ctx.JSON(http.StatusOK, gin.H{"id": id})
+		} else {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+		}
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 	}

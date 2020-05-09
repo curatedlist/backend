@@ -103,3 +103,23 @@ func (repo *Repository) CreateList(userID string, createListCommand commands.Cre
 	res, _ := result.LastInsertId()
 	return res
 }
+
+// CreateItem creates a item for a list
+func (repo *Repository) CreateItem(listID string, createItemCommand commands.CreateItem) int64 {
+	ib := sqlbuilder.NewInsertBuilder()
+	ib.InsertInto("item")
+	ib.Cols("name", "url", "pic_url", "list_id")
+	ib.Values(createItemCommand.Name, createItemCommand.URL, createItemCommand.PicURL, listID)
+	sql, args := ib.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	result, err := stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	res, _ := result.LastInsertId()
+	return res
+}

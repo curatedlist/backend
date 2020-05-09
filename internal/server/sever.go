@@ -53,6 +53,7 @@ func (server *Server) registerListRoutes() *Server {
 	lists.GET("/", server.listAPI.FindAll)
 	lists.GET("/id/:id", server.listAPI.Get)
 	lists.POST("/", server.listAPI.CreateList)
+	lists.POST("/:id/items/", server.listAPI.CreateItem)
 	return server
 }
 

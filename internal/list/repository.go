@@ -5,6 +5,7 @@ import (
 	// Mysql driver
 	"backend/internal/database"
 	"backend/internal/list/commands"
+	"strconv"
 
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -55,7 +56,7 @@ func (repo *Repository) FindAll() []Aggregate {
 // Get a list by ID
 func (repo *Repository) Get(id string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.url", "item.pic_url")
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.url", "item.pic_url", "item.deleted", "item.list_id")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sb.JoinWithOption("LEFT", "item", "item.list_id = list.id")
@@ -84,6 +85,27 @@ func (repo *Repository) Get(id string) Aggregate {
 	return list
 }
 
+// GetItem returns an item by ID
+func (repo *Repository) GetItem(id string) ItemAggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("item.id", "item.name", "item.url", "item.pic_url", "item.deleted", "item.list_id")
+	sb.From("item")
+	sb.Where(sb.Equal("item.id", id))
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+	var item ItemAggregate
+	if rows.Next() {
+		err := rows.Scan(repo.itemStruct.Addr(&item)...)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+	return item
+}
+
 // CreateList creates a list
 func (repo *Repository) CreateList(userID string, createListCommand commands.CreateList) int64 {
 	ib := sqlbuilder.NewInsertBuilder()
@@ -105,7 +127,7 @@ func (repo *Repository) CreateList(userID string, createListCommand commands.Cre
 }
 
 // CreateItem creates a item for a list
-func (repo *Repository) CreateItem(listID string, createItemCommand commands.CreateItem) int64 {
+func (repo *Repository) CreateItem(listID string, createItemCommand commands.CreateItem) ItemAggregate {
 	ib := sqlbuilder.NewInsertBuilder()
 	ib.InsertInto("item")
 	ib.Cols("name", "url", "pic_url", "list_id")
@@ -120,6 +142,27 @@ func (repo *Repository) CreateItem(listID string, createItemCommand commands.Cre
 	if err != nil {
 		panic(err.Error())
 	}
-	res, _ := result.LastInsertId()
-	return res
+	itemID, _ := result.LastInsertId()
+	itemAggregate := repo.GetItem(strconv.FormatInt(itemID, 10))
+	return itemAggregate
+}
+
+// DeleteItem Create an user
+func (repo *Repository) DeleteItem(id string) ItemAggregate {
+	ub := sqlbuilder.NewUpdateBuilder()
+	ub.Update("item")
+	ub.Set(ub.Assign("deleted", true))
+	ub.Where(ub.Equal("id", id))
+	sql, args := ub.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	itemAggregate := repo.GetItem(id)
+	return itemAggregate
 }

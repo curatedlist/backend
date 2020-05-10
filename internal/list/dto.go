@@ -11,10 +11,12 @@ type DTO struct {
 
 // ItemDTO the DTO for item
 type ItemDTO struct {
-	ID     uint
-	Name   string
-	URL    string
-	PicURL string
+	ID      uint
+	Name    string
+	URL     string
+	PicURL  string
+	Deleted bool
+	ListID  uint
 }
 
 // OwnerDTO the DTO for Owner

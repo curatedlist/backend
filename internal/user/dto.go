@@ -2,16 +2,16 @@ package user
 
 // DTO the DTO for User
 type DTO struct {
-	ID        uint
-	Name      string
-	Email     string
-	AvatarURL string
-	Lists     []ListDTO
+	ID        uint      `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	AvatarURL string    `json:"avatar_url"`
+	Lists     []ListDTO `json:"lists"`
 }
 
 // ListDTO the DTO for List
 type ListDTO struct {
-	ID          uint
-	Name        string
-	Description string
+	ID          uint   `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }

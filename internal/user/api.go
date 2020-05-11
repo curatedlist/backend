@@ -53,7 +53,7 @@ func (api *API) CreateUser(ctx *gin.Context) {
 // UpdateUser create an user
 func (api *API) UpdateUser(ctx *gin.Context) {
 	id := ctx.Param("id")
-	name := ctx.PostForm("Name")
+	name := ctx.PostForm("name")
 	uid := api.service.UpdateUser(id, name)
 	ctx.JSON(http.StatusOK, gin.H{"id": uid})
 }

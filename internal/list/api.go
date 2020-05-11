@@ -51,7 +51,7 @@ func (api *API) CreateList(ctx *gin.Context) {
 		panic(err.Error())
 	}
 	userID := createListCommand.UserID
-	userDTO := api.service.Get(userID)
+	userDTO := api.userService.Get(userID)
 	if userDTO.ID != 0 {
 		if err != nil {
 			panic(err.Error())

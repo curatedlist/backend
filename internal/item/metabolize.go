@@ -23,7 +23,7 @@ func GetMetaData(url string) string {
 	}
 
 	doc.Find("meta").Each(func(i int, s *goquery.Selection) {
-		property, _ := s.Attr("name")
+		property, _ := s.Attr("property")
 		if property == "og:image" {
 			data.ogImage, _ = s.Attr("content")
 		}

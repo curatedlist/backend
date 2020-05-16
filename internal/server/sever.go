@@ -55,6 +55,7 @@ func (server *Server) registerListRoutes() *Server {
 	lists.POST("/", server.listAPI.CreateList)
 	lists.POST("/:id/items/", server.listAPI.CreateItem)
 	lists.PATCH("/:listID/items/:itemID/delete", server.listAPI.DeleteItem)
+	lists.PUT("/:id/fav", server.listAPI.FavList)
 	return server
 }
 

@@ -13,6 +13,7 @@ type Repository struct {
 	db         database.DB
 	userStruct *sqlbuilder.Struct
 	listStruct *sqlbuilder.Struct
+	favStruct  *sqlbuilder.Struct
 }
 
 // NewRepository returns a Repository
@@ -21,13 +22,15 @@ func NewRepository(db database.DB) Repository {
 		db:         db,
 		userStruct: sqlbuilder.NewStruct(new(Aggregate)),
 		listStruct: sqlbuilder.NewStruct(new(ListAggregate)),
+		favStruct:  sqlbuilder.NewStruct(new(FavAggregate)),
 	}
 }
 
 func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggregate {
-	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description")
+	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description", "fav.list_id")
 	sb.From("user")
 	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
+	sb.JoinWithOption("LEFT", "fav", "fav.user_id = user.id")
 	sb.Where(equal)
 	sql, args := sb.Build()
 	rows, err := repo.db.DB.Query(sql, args...)
@@ -37,14 +40,19 @@ func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggreg
 	var user Aggregate
 	for rows.Next() {
 		var list ListAggregate
+		var fav FavAggregate
 		its := repo.userStruct.Addr(&user)
 		its = append(its, repo.listStruct.Addr(&list)...)
+		its = append(its, repo.favStruct.Addr(&fav)...)
 		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
 		if list.ID.Valid {
 			user.Lists = append(user.Lists, list)
+		}
+		if fav.ListID.Valid {
+			user.Favs = append(user.Favs, fav)
 		}
 	}
 	return user

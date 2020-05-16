@@ -3,7 +3,6 @@ package list
 import (
 	"backend/internal/list/commands"
 	"backend/internal/user"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -73,9 +72,6 @@ func (api *API) CreateItem(ctx *gin.Context) {
 	userID := createItemCommand.UserID
 	userDTO := api.userService.Get(userID)
 	if userDTO.ID != 0 {
-		if err != nil {
-			panic(err.Error())
-		}
 		listID := createItemCommand.ListID
 		listDTO := api.service.Get(listID)
 		if listDTO.ID != 0 {
@@ -99,15 +95,31 @@ func (api *API) DeleteItem(ctx *gin.Context) {
 	if listDTO.ID != 0 {
 		itemID := ctx.Param("itemID")
 		itemDTO := api.service.GetItem(itemID)
-		fmt.Println(itemDTO.ListID)
 		listID, err := strconv.ParseUint(listID, 10, 64)
 		if err != nil {
 			panic(err.Error())
 		}
 		if itemDTO.ID != 0 && uint64(itemDTO.ListID) == listID {
-			fmt.Println(itemDTO.ID)
 			item := api.service.DeleteItem(itemID)
 			ctx.JSON(http.StatusOK, gin.H{"item": item})
+		} else {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+		}
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
+// FavList Favs a list
+func (api *API) FavList(ctx *gin.Context) {
+	listID := ctx.Param("id")
+	listDTO := api.service.Get(listID)
+	if listDTO.ID != 0 {
+		userID := ctx.Query("user_id")
+		userDTO := api.userService.Get(userID)
+		if userDTO.ID != 0 {
+			list := api.service.FavList(listID, userID)
+			ctx.JSON(http.StatusOK, gin.H{"list": list})
 		} else {
 			ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 		}

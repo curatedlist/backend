@@ -9,6 +9,7 @@ type Aggregate struct {
 	Email     sql.NullString  `db:"email"`
 	AvatarURL sql.NullString  `db:"avatar_url"`
 	Lists     []ListAggregate `db:"-"`
+	Favs      []FavAggregate  `db:"-"`
 }
 
 // ListAggregate the DTO for List
@@ -18,10 +19,15 @@ type ListAggregate struct {
 	Description sql.NullString `db:"description"`
 }
 
+// ListAggregate the DTO for List
+type FavAggregate struct {
+	ListID sql.NullInt64 `db:"list_id"`
+}
+
 // ToUser transforms a User into a DTO
 func (agg Aggregate) ToUser() DTO {
 	if agg.ID.Valid {
-		return DTO{ID: uint(agg.ID.Int64), Name: agg.Name.String, Email: agg.Email.String, AvatarURL: agg.AvatarURL.String, Lists: ToLists(agg.Lists)}
+		return DTO{ID: uint(agg.ID.Int64), Name: agg.Name.String, Email: agg.Email.String, AvatarURL: agg.AvatarURL.String, Lists: ToLists(agg.Lists), Favs: ToFavs(agg.Favs)}
 	}
 	return DTO{}
 }
@@ -32,6 +38,15 @@ func (la ListAggregate) ToList() ListDTO {
 		return ListDTO{ID: uint(la.ID.Int64), Name: la.Name.String, Description: la.Description.String}
 	}
 	return ListDTO{}
+}
+
+//ToFavs to favs
+func ToFavs(favs []FavAggregate) []uint {
+	favlist := make([]uint, len(favs))
+	for i, fav := range favs {
+		favlist[i] = uint(fav.ListID.Int64)
+	}
+	return favlist
 }
 
 // ToLists transforms an array of Lists from the database into a ListDTO

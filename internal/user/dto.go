@@ -7,6 +7,7 @@ type DTO struct {
 	Email     string    `json:"email"`
 	AvatarURL string    `json:"avatar_url"`
 	Lists     []ListDTO `json:"lists"`
+	Favs      []uint    `json:"favs"`
 }
 
 // ListDTO the DTO for List

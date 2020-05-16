@@ -56,7 +56,7 @@ func (repo *Repository) FindAll() []Aggregate {
 // Get a list by ID
 func (repo *Repository) Get(id string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.url", "item.pic_url", "item.deleted", "item.list_id")
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sb.JoinWithOption("LEFT", "item", "item.list_id = list.id")
@@ -88,7 +88,7 @@ func (repo *Repository) Get(id string) Aggregate {
 // GetItem returns an item by ID
 func (repo *Repository) GetItem(id string) ItemAggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("item.id", "item.name", "item.url", "item.pic_url", "item.deleted", "item.list_id")
+	sb.Select("item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
 	sb.From("item")
 	sb.Where(sb.Equal("item.id", id))
 	sql, args := sb.Build()
@@ -130,8 +130,8 @@ func (repo *Repository) CreateList(userID string, createListCommand commands.Cre
 func (repo *Repository) CreateItem(listID string, createItemCommand commands.CreateItem) ItemAggregate {
 	ib := sqlbuilder.NewInsertBuilder()
 	ib.InsertInto("item")
-	ib.Cols("name", "url", "pic_url", "list_id")
-	ib.Values(createItemCommand.Name, createItemCommand.URL, createItemCommand.PicURL, listID)
+	ib.Cols("name", "description", "url", "pic_url", "list_id")
+	ib.Values(createItemCommand.Name, createItemCommand.Description, createItemCommand.URL, createItemCommand.PicURL, listID)
 	sql, args := ib.Build()
 	stmt, err := repo.db.DB.Prepare(sql)
 	if err != nil {
@@ -165,4 +165,24 @@ func (repo *Repository) DeleteItem(id string) ItemAggregate {
 	}
 	itemAggregate := repo.GetItem(id)
 	return itemAggregate
+}
+
+// FavList favs a list
+func (repo *Repository) FavList(listID string, userID string) Aggregate {
+	ib := sqlbuilder.NewInsertBuilder()
+	ib.InsertInto("fav")
+	ib.Cols("list_id", "user_id")
+	ib.Values(listID, userID)
+	sql, args := ib.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	listAggregate := repo.Get(listID)
+	return listAggregate
 }

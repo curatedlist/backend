@@ -46,3 +46,8 @@ func (serv *Service) CreateItem(userID string, createItemCommand commands.Create
 func (serv *Service) DeleteItem(itemID string) ItemDTO {
 	return serv.repository.DeleteItem(itemID).ToItem()
 }
+
+// FavList favs a list
+func (serv *Service) FavList(listID string, userID string) DTO {
+	return serv.repository.FavList(listID, userID).ToList()
+}

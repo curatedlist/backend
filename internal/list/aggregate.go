@@ -21,18 +21,19 @@ type OwnerAggregate struct {
 
 // ItemAggregate the DTO for item
 type ItemAggregate struct {
-	ID      sql.NullInt64  `db:"id"`
-	Name    sql.NullString `db:"name"`
-	URL     sql.NullString `db:"url"`
-	PicURL  sql.NullString `db:"pic_url"`
-	Deleted sql.NullBool   `db:"deleted"`
-	ListID  sql.NullInt64  `db:"list_id"`
+	ID          sql.NullInt64  `db:"id"`
+	Name        sql.NullString `db:"name"`
+	Description sql.NullString `db:"description"`
+	URL         sql.NullString `db:"url"`
+	PicURL      sql.NullString `db:"pic_url"`
+	Deleted     sql.NullBool   `db:"deleted"`
+	ListID      sql.NullInt64  `db:"list_id"`
 }
 
 // ToItem transforms a item into a itemDTO
 func (item ItemAggregate) ToItem() ItemDTO {
 	if item.ID.Valid {
-		return ItemDTO{ID: uint(item.ID.Int64), Name: item.Name.String, URL: item.URL.String, PicURL: item.PicURL.String, Deleted: item.Deleted.Bool, ListID: uint(item.ListID.Int64)}
+		return ItemDTO{ID: uint(item.ID.Int64), Name: item.Name.String, Description: item.Description.String, URL: item.URL.String, PicURL: item.PicURL.String, Deleted: item.Deleted.Bool, ListID: uint(item.ListID.Int64)}
 	}
 	return ItemDTO{}
 }

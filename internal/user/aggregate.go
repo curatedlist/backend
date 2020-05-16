@@ -7,6 +7,8 @@ type Aggregate struct {
 	ID        sql.NullInt64   `db:"id"`
 	Name      sql.NullString  `db:"name"`
 	Email     sql.NullString  `db:"email"`
+	Username  sql.NullString  `db:"username"`
+	Bio       sql.NullString  `db:"bio"`
 	AvatarURL sql.NullString  `db:"avatar_url"`
 	Lists     []ListAggregate `db:"-"`
 	Favs      []FavAggregate  `db:"-"`
@@ -19,7 +21,7 @@ type ListAggregate struct {
 	Description sql.NullString `db:"description"`
 }
 
-// ListAggregate the DTO for List
+// FavAggregate the DTO for Favs
 type FavAggregate struct {
 	ListID sql.NullInt64 `db:"list_id"`
 }
@@ -27,7 +29,7 @@ type FavAggregate struct {
 // ToUser transforms a User into a DTO
 func (agg Aggregate) ToUser() DTO {
 	if agg.ID.Valid {
-		return DTO{ID: uint(agg.ID.Int64), Name: agg.Name.String, Email: agg.Email.String, AvatarURL: agg.AvatarURL.String, Lists: ToLists(agg.Lists), Favs: ToFavs(agg.Favs)}
+		return DTO{ID: uint(agg.ID.Int64), Name: agg.Name.String, Email: agg.Email.String, Username: agg.Username.String, Bio: agg.Bio.String, AvatarURL: agg.AvatarURL.String, Lists: ToLists(agg.Lists), Favs: ToFavs(agg.Favs)}
 	}
 	return DTO{}
 }

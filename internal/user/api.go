@@ -39,6 +39,17 @@ func (api *API) GetByEmail(ctx *gin.Context) {
 	}
 }
 
+// GetByUsername an user by Username
+func (api *API) GetByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	user := api.service.GetByUsername(username)
+	if user.ID != 0 {
+		ctx.JSON(http.StatusOK, gin.H{"user": user})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
 // CreateUser create an user
 func (api *API) CreateUser(ctx *gin.Context) {
 	var registerCommand commands.Register
@@ -53,7 +64,11 @@ func (api *API) CreateUser(ctx *gin.Context) {
 // UpdateUser create an user
 func (api *API) UpdateUser(ctx *gin.Context) {
 	id := ctx.Param("id")
-	name := ctx.PostForm("name")
-	uid := api.service.UpdateUser(id, name)
+	var updateCommand commands.Update
+	err := ctx.BindJSON(&updateCommand)
+	if err != nil {
+		panic(err.Error())
+	}
+	uid := api.service.UpdateUser(id, updateCommand)
 	ctx.JSON(http.StatusOK, gin.H{"id": uid})
 }

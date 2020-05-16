@@ -9,6 +9,7 @@ type Aggregate struct {
 	Description sql.NullString  `db:"description"`
 	Owner       OwnerAggregate  `db:"-"`
 	Items       []ItemAggregate `db:"-"`
+	Favs        uint            `db:"-"`
 }
 
 // OwnerAggregate the Aggregate for List
@@ -16,6 +17,8 @@ type OwnerAggregate struct {
 	ID        sql.NullInt64  `db:"id"`
 	Name      sql.NullString `db:"name"`
 	Email     sql.NullString `db:"email"`
+	Username  sql.NullString `db:"username"`
+	Bio       sql.NullString `db:"bio"`
 	AvatarURL sql.NullString `db:"avatar_url"`
 }
 
@@ -41,7 +44,7 @@ func (item ItemAggregate) ToItem() ItemDTO {
 // ToOwner transforms a user into a userDTO
 func (owner OwnerAggregate) ToOwner() OwnerDTO {
 	if owner.ID.Valid {
-		return OwnerDTO{ID: uint(owner.ID.Int64), Name: owner.Name.String, Email: owner.Email.String, AvatarURL: owner.AvatarURL.String}
+		return OwnerDTO{ID: uint(owner.ID.Int64), Name: owner.Name.String, Username: owner.Username.String, Bio: owner.Bio.String, Email: owner.Email.String, AvatarURL: owner.AvatarURL.String}
 	}
 	return OwnerDTO{}
 }
@@ -49,7 +52,7 @@ func (owner OwnerAggregate) ToOwner() OwnerDTO {
 // ToList transforms a List into a ListDTO
 func (list Aggregate) ToList() DTO {
 	if list.ID.Valid {
-		return DTO{ID: uint(list.ID.Int64), Name: list.Name.String, Description: list.Description.String, Items: ToItems(list.Items), Owner: list.Owner.ToOwner()}
+		return DTO{ID: uint(list.ID.Int64), Name: list.Name.String, Description: list.Description.String, Items: ToItems(list.Items), Owner: list.Owner.ToOwner(), Favs: list.Favs}
 	}
 	return DTO{}
 }

@@ -7,6 +7,7 @@ type DTO struct {
 	Description string    `json:"description"`
 	Items       []ItemDTO `json:"items"`
 	Owner       OwnerDTO  `json:"owner"`
+	Favs        uint      `json:"favs"`
 }
 
 // ItemDTO the DTO for item
@@ -25,5 +26,7 @@ type OwnerDTO struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
+	Username  string `json:"username"`
+	Bio       string `json:"bio"`
 	AvatarURL string `json:"avatar_url"`
 }

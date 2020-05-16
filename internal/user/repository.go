@@ -4,6 +4,7 @@ import (
 
 	// Mysql driver
 	"backend/internal/database"
+	"backend/internal/user/commands"
 
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -27,7 +28,7 @@ func NewRepository(db database.DB) Repository {
 }
 
 func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggregate {
-	sb.Select("user.id", "user.name", "user.email", "user.avatar_url", "list.id", "list.name", "list.description", "fav.list_id")
+	sb.Select("user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "list.id", "list.name", "list.description", "fav.list_id")
 	sb.From("user")
 	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
 	sb.JoinWithOption("LEFT", "fav", "fav.user_id = user.id")
@@ -70,6 +71,12 @@ func (repo *Repository) GetByEmail(email string) Aggregate {
 	return repo.getBy(sb, sb.Equal("user.email", email))
 }
 
+// GetByUsername a user from repository by its id
+func (repo *Repository) GetByUsername(username string) Aggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	return repo.getBy(sb, sb.Equal("user.username", username))
+}
+
 // CreateUser Create an user
 func (repo *Repository) CreateUser(email string) int64 {
 	ib := sqlbuilder.NewInsertBuilder()
@@ -91,10 +98,12 @@ func (repo *Repository) CreateUser(email string) int64 {
 }
 
 // UpdateUser Create an user
-func (repo *Repository) UpdateUser(id string, name string) int64 {
+func (repo *Repository) UpdateUser(id string, updateCommand commands.Update) int64 {
 	ub := sqlbuilder.NewUpdateBuilder()
 	ub.Update("user")
-	ub.Set(ub.Assign("name", name))
+	ub.Set(ub.Assign("name", updateCommand.Name))
+	ub.Set(ub.Assign("username", updateCommand.Username))
+	ub.Set(ub.Assign("bio", updateCommand.Bio))
 	ub.Where(ub.Equal("id", id))
 	sql, args := ub.Build()
 	stmt, err := repo.db.DB.Prepare(sql)

@@ -1,5 +1,7 @@
 package user
 
+import "backend/internal/user/commands"
+
 // Service is a service that provides basic operations over Users
 type Service struct {
 	repository Repository
@@ -20,12 +22,17 @@ func (serv *Service) GetByEmail(email string) DTO {
 	return serv.repository.GetByEmail(email).ToUser()
 }
 
+// GetByUsername a list by email
+func (serv *Service) GetByUsername(email string) DTO {
+	return serv.repository.GetByUsername(email).ToUser()
+}
+
 // CreateUser creates an user
 func (serv *Service) CreateUser(email string) int64 {
 	return serv.repository.CreateUser(email)
 }
 
 // UpdateUser creates an user
-func (serv *Service) UpdateUser(id string, name string) int64 {
-	return serv.repository.UpdateUser(id, name)
+func (serv *Service) UpdateUser(id string, updateCommand commands.Update) int64 {
+	return serv.repository.UpdateUser(id, updateCommand)
 }

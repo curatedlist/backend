@@ -31,7 +31,7 @@ func NewRepository(db database.DB) Repository {
 // FindAll find alls models from repository
 func (repo *Repository) FindAll() []Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url")
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sql, _ := sb.Build()
@@ -56,7 +56,7 @@ func (repo *Repository) FindAll() []Aggregate {
 // Get a list by ID
 func (repo *Repository) Get(id string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.avatar_url", "item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sb.JoinWithOption("LEFT", "item", "item.list_id = list.id")
@@ -80,7 +80,22 @@ func (repo *Repository) Get(id string) Aggregate {
 		if item.ID.Valid {
 			list.Items = append(list.Items, item)
 		}
-
+	}
+	sb = sqlbuilder.NewSelectBuilder()
+	sb.Select(sb.As("COUNT(*)", "c"))
+	sb.From("list")
+	sb.Join("fav", "fav.list_id = list.id")
+	sb.Where(sb.Equal("list.id", id))
+	sql, args = sb.Build()
+	rows, err = repo.db.DB.Query(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+	for rows.Next() {
+		err := rows.Scan(&list.Favs)
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 	return list
 }

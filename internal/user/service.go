@@ -33,6 +33,6 @@ func (serv *Service) CreateUser(email string) int64 {
 }
 
 // UpdateUser creates an user
-func (serv *Service) UpdateUser(id string, updateCommand commands.Update) int64 {
-	return serv.repository.UpdateUser(id, updateCommand)
+func (serv *Service) UpdateUser(id string, updateCommand commands.Update) DTO {
+	return serv.repository.UpdateUser(id, updateCommand).ToUser()
 }

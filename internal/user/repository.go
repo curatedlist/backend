@@ -98,23 +98,24 @@ func (repo *Repository) CreateUser(email string) int64 {
 }
 
 // UpdateUser Create an user
-func (repo *Repository) UpdateUser(id string, updateCommand commands.Update) int64 {
+func (repo *Repository) UpdateUser(id string, updateCommand commands.Update) Aggregate {
 	ub := sqlbuilder.NewUpdateBuilder()
 	ub.Update("user")
-	ub.Set(ub.Assign("name", updateCommand.Name))
-	ub.Set(ub.Assign("username", updateCommand.Username))
-	ub.Set(ub.Assign("bio", updateCommand.Bio))
+	ub.Set(
+		ub.Assign("name", updateCommand.Name),
+		ub.Assign("username", updateCommand.Username),
+		ub.Assign("bio", updateCommand.Bio),
+	)
 	ub.Where(ub.Equal("id", id))
 	sql, args := ub.Build()
 	stmt, err := repo.db.DB.Prepare(sql)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	result, err := stmt.Exec(args...)
-
+	_, err = stmt.Exec(args...)
 	if err != nil {
 		panic(err.Error()) // proper error handling instead of panic in your app
 	}
-	res, _ := result.LastInsertId()
-	return res
+	userAggregate := repo.GetByID(id)
+	return userAggregate
 }

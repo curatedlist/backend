@@ -5,6 +5,7 @@ import (
 	// Mysql driver
 	"backend/internal/database"
 	"backend/internal/user/commands"
+	"strconv"
 
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -78,7 +79,7 @@ func (repo *Repository) GetByUsername(username string) Aggregate {
 }
 
 // CreateUser Create an user
-func (repo *Repository) CreateUser(email string) int64 {
+func (repo *Repository) CreateUser(email string) Aggregate {
 	ib := sqlbuilder.NewInsertBuilder()
 	ib.InsertInto("user")
 	ib.Cols("email")
@@ -93,8 +94,9 @@ func (repo *Repository) CreateUser(email string) int64 {
 	if err != nil {
 		panic(err.Error())
 	}
-	res, _ := result.LastInsertId()
-	return res
+	id, _ := result.LastInsertId()
+	user := repo.GetByID(strconv.FormatInt(id, 10))
+	return user
 }
 
 // UpdateUser Create an user

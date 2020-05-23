@@ -57,8 +57,8 @@ func (api *API) CreateUser(ctx *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	id := api.service.CreateUser(registerCommand.Email)
-	ctx.JSON(http.StatusOK, gin.H{"id": id})
+	user := api.service.CreateUser(registerCommand.Email)
+	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
 
 // UpdateUser create an user
@@ -69,6 +69,6 @@ func (api *API) UpdateUser(ctx *gin.Context) {
 	if err != nil {
 		panic(err.Error())
 	}
-	uid := api.service.UpdateUser(id, updateCommand)
-	ctx.JSON(http.StatusOK, gin.H{"id": uid})
+	user := api.service.UpdateUser(id, updateCommand)
+	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }

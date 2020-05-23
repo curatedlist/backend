@@ -28,8 +28,8 @@ func (serv *Service) GetByUsername(email string) DTO {
 }
 
 // CreateUser creates an user
-func (serv *Service) CreateUser(email string) int64 {
-	return serv.repository.CreateUser(email)
+func (serv *Service) CreateUser(email string) DTO {
+	return serv.repository.CreateUser(email).ToUser()
 }
 
 // UpdateUser creates an user

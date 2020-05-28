@@ -36,10 +36,10 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+      run: go build -v ./cmd/backend/main.go
 
     - name: Test
-      run: go test -v .
+      run: go test -v ./...
 
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy

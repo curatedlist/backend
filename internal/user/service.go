@@ -1,6 +1,8 @@
 package user
 
-import "backend/internal/user/commands"
+import (
+	"backend/internal/user/commands"
+)
 
 // Service is a service that provides basic operations over Users
 type Service struct {
@@ -25,6 +27,20 @@ func (serv *Service) GetByEmail(email string) DTO {
 // GetByUsername a list by email
 func (serv *Service) GetByUsername(email string) DTO {
 	return serv.repository.GetByUsername(email).ToUser()
+}
+
+// GetListsForUser get lists for an user
+func (serv *Service) GetListsForUser(user DTO) []ListDTO {
+	lists := ToLists(serv.repository.GetLists(user.ID))
+	for i := range lists {
+		lists[i].Owner = user
+	}
+	return lists
+}
+
+// GetFavsForUser get favorites lists for an user
+func (serv *Service) GetFavsForUser(user DTO) []ListDTO {
+	return ToLists(serv.repository.GetFavs(user.ID))
 }
 
 // CreateUser creates an user

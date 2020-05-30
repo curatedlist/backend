@@ -55,8 +55,8 @@ func (api *API) CreateList(ctx *gin.Context) {
 		if err != nil {
 			panic(err.Error())
 		}
-		id := api.service.CreateList(userID, createListCommand)
-		ctx.JSON(http.StatusOK, gin.H{"id": id})
+		list := api.service.CreateList(userID, createListCommand)
+		ctx.JSON(http.StatusOK, gin.H{"list": list})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 	}

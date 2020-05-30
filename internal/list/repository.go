@@ -122,7 +122,7 @@ func (repo *Repository) GetItem(id string) ItemAggregate {
 }
 
 // CreateList creates a list
-func (repo *Repository) CreateList(userID string, createListCommand commands.CreateList) int64 {
+func (repo *Repository) CreateList(userID string, createListCommand commands.CreateList) Aggregate {
 	ib := sqlbuilder.NewInsertBuilder()
 	ib.InsertInto("list")
 	ib.Cols("name", "description", "user_id")
@@ -137,8 +137,9 @@ func (repo *Repository) CreateList(userID string, createListCommand commands.Cre
 	if err != nil {
 		panic(err.Error())
 	}
-	res, _ := result.LastInsertId()
-	return res
+	listID, _ := result.LastInsertId()
+	listAggregate := repo.Get(strconv.FormatInt(listID, 10))
+	return listAggregate
 }
 
 // CreateItem creates a item for a list

@@ -50,6 +50,30 @@ func (api *API) GetByUsername(ctx *gin.Context) {
 	}
 }
 
+// GetListsByUsername gets list of an user by username
+func (api *API) GetListsByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	user := api.service.GetByUsername(username)
+	if user.ID != 0 {
+		lists := api.service.GetListsForUser(user)
+		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
+// GetFavsByUsername gets favorites list of an user by username
+func (api *API) GetFavsByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	user := api.service.GetByUsername(username)
+	if user.ID != 0 {
+		lists := api.service.GetFavsForUser(user)
+		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
 // CreateUser create an user
 func (api *API) CreateUser(ctx *gin.Context) {
 	var registerCommand commands.Register

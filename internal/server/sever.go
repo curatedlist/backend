@@ -64,6 +64,8 @@ func (server *Server) registerUserRoutes() *Server {
 	users.GET("/id/:id", server.userAPI.Get)
 	users.GET("/email/:email", server.userAPI.GetByEmail)
 	users.GET("/username/:username", server.userAPI.GetByUsername)
+	users.GET("/username/:username/lists", server.userAPI.GetListsByUsername)
+	users.GET("/username/:username/favs", server.userAPI.GetFavsByUsername)
 	users.PUT("/id/:id", server.userAPI.UpdateUser)
 	users.POST("/", server.userAPI.CreateUser)
 

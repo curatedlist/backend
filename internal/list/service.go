@@ -31,8 +31,8 @@ func (serv *Service) GetItem(id string) ItemDTO {
 }
 
 // CreateList creates a list
-func (serv *Service) CreateList(userID string, createListCommand commands.CreateList) int64 {
-	return serv.repository.CreateList(userID, createListCommand)
+func (serv *Service) CreateList(userID string, createListCommand commands.CreateList) DTO {
+	return serv.repository.CreateList(userID, createListCommand).ToList()
 }
 
 // CreateItem creates a item for a list

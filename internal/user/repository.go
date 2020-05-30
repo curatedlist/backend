@@ -28,12 +28,11 @@ func NewRepository(db database.DB) Repository {
 	}
 }
 
-func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggregate {
-	sb.Select("user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "list.id", "list.name", "list.description", "fav.list_id")
+func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, column string, value string) Aggregate {
+	sb.Select("user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "fav.list_id")
 	sb.From("user")
-	sb.JoinWithOption("LEFT", "list", "list.user_id = user.id")
 	sb.JoinWithOption("LEFT", "fav", "fav.user_id = user.id")
-	sb.Where(equal)
+	sb.Where(sb.Equal(column, value))
 	sql, args := sb.Build()
 	rows, err := repo.db.DB.Query(sql, args...)
 	if err != nil {
@@ -41,41 +40,106 @@ func (repo *Repository) getBy(sb *sqlbuilder.SelectBuilder, equal string) Aggreg
 	}
 	var user Aggregate
 	for rows.Next() {
-		var list ListAggregate
 		var fav FavAggregate
 		its := repo.userStruct.Addr(&user)
-		its = append(its, repo.listStruct.Addr(&list)...)
 		its = append(its, repo.favStruct.Addr(&fav)...)
 		err := rows.Scan(its...)
 		if err != nil {
 			panic(err.Error())
 		}
-		if list.ID.Valid {
-			user.Lists = append(user.Lists, list)
-		}
 		if fav.ListID.Valid {
 			user.Favs = append(user.Favs, fav)
 		}
 	}
+
+	sb = sqlbuilder.NewSelectBuilder()
+	sb.Select(sb.As("COUNT(*)", "c"))
+	sb.From("list")
+	sb.Join("user", "user.id = list.user_id")
+	sb.Where(sb.Equal(column, value))
+	sql, args = sb.Build()
+	rows, err = repo.db.DB.Query(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+	for rows.Next() {
+		err := rows.Scan(&user.Lists)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
 	return user
 }
 
 // GetByID a user from repository by its id
 func (repo *Repository) GetByID(id string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	return repo.getBy(sb, sb.Equal("user.id", id))
+	return repo.getBy(sb, "user.id", id)
 }
 
 // GetByEmail a user from repository by its email
 func (repo *Repository) GetByEmail(email string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	return repo.getBy(sb, sb.Equal("user.email", email))
+	return repo.getBy(sb, "user.email", email)
 }
 
 // GetByUsername a user from repository by its id
 func (repo *Repository) GetByUsername(username string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	return repo.getBy(sb, sb.Equal("user.username", username))
+	return repo.getBy(sb, "user.username", username)
+}
+
+// GetLists a user from repository by its id
+func (repo *Repository) GetLists(userID uint) []ListAggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("list.id", "list.name", "list.description")
+	sb.From("list")
+	sb.Where(sb.Equal("list.user_id", userID))
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+	lists := make([]ListAggregate, 0)
+	for rows.Next() {
+		var list ListAggregate
+		err := rows.Scan(repo.listStruct.Addr(&list)...)
+		if err != nil {
+			panic(err.Error())
+		}
+		lists = append(lists, list)
+	}
+	return lists
+}
+
+// GetFavs a user from repository by its id
+func (repo *Repository) GetFavs(userID uint) []ListAggregate {
+	sb := sqlbuilder.NewSelectBuilder()
+	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
+	sb.From("list")
+	sb.Join("fav", "list.id = fav.list_id")
+	sb.Join("user", "user.id = list.user_id")
+	sb.Where(sb.Equal("fav.user_id", userID))
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
+	if err != nil {
+		panic(err.Error())
+	}
+	lists := make([]ListAggregate, 0)
+	for rows.Next() {
+		var list ListAggregate
+		var user Aggregate
+		its := repo.listStruct.Addr(&list)
+		its = append(its, repo.userStruct.Addr(&user)...)
+		err := rows.Scan(its...)
+		if err != nil {
+			panic(err.Error())
+		}
+		list.Owner = user
+		lists = append(lists, list)
+	}
+	return lists
 }
 
 // CreateUser Create an user

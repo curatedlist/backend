@@ -4,14 +4,14 @@ import "database/sql"
 
 // Aggregate the Aggregate for User
 type Aggregate struct {
-	ID        sql.NullInt64   `db:"id"`
-	Name      sql.NullString  `db:"name"`
-	Email     sql.NullString  `db:"email"`
-	Username  sql.NullString  `db:"username"`
-	Bio       sql.NullString  `db:"bio"`
-	AvatarURL sql.NullString  `db:"avatar_url"`
-	Lists     []ListAggregate `db:"-"`
-	Favs      []FavAggregate  `db:"-"`
+	ID        sql.NullInt64  `db:"id"`
+	Name      sql.NullString `db:"name"`
+	Email     sql.NullString `db:"email"`
+	Username  sql.NullString `db:"username"`
+	Bio       sql.NullString `db:"bio"`
+	AvatarURL sql.NullString `db:"avatar_url"`
+	Favs      []FavAggregate `db:"-"`
+	Lists     uint           `db:"-"`
 }
 
 // ToUser transforms a User into a DTO
@@ -24,7 +24,7 @@ func (agg Aggregate) ToUser() DTO {
 			Username:  agg.Username.String,
 			Bio:       agg.Bio.String,
 			AvatarURL: agg.AvatarURL.String,
-			Lists:     ToLists(agg.Lists),
+			Lists:     agg.Lists,
 			Favs:      ToFavs(agg.Favs),
 		}
 	}
@@ -36,6 +36,7 @@ type ListAggregate struct {
 	ID          sql.NullInt64  `db:"id"`
 	Name        sql.NullString `db:"name"`
 	Description sql.NullString `db:"description"`
+	Owner       Aggregate      `db:"-"`
 }
 
 // FavAggregate the DTO for Favs
@@ -50,6 +51,7 @@ func (la ListAggregate) ToList() ListDTO {
 			ID:          uint(la.ID.Int64),
 			Name:        la.Name.String,
 			Description: la.Description.String,
+			Owner:       la.Owner.ToUser(),
 		}
 	}
 	return ListDTO{}

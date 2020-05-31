@@ -64,6 +64,7 @@ func (api *API) CreateList(ctx *gin.Context) {
 
 // CreateItem create a item for a list
 func (api *API) CreateItem(ctx *gin.Context) {
+	listID := ctx.Param("id")
 	var createItemCommand commands.CreateItem
 	err := ctx.BindJSON(&createItemCommand)
 	if err != nil {
@@ -72,7 +73,6 @@ func (api *API) CreateItem(ctx *gin.Context) {
 	userID := createItemCommand.UserID
 	userDTO := api.userService.Get(userID)
 	if userDTO.ID != 0 {
-		listID := createItemCommand.ListID
 		listDTO := api.service.Get(listID)
 		if listDTO.ID != 0 {
 			if err != nil {
@@ -90,7 +90,7 @@ func (api *API) CreateItem(ctx *gin.Context) {
 
 // DeleteItem deletes a item for a list
 func (api *API) DeleteItem(ctx *gin.Context) {
-	listID := ctx.Param("listID")
+	listID := ctx.Param("id")
 	listDTO := api.service.Get(listID)
 	if listDTO.ID != 0 {
 		itemID := ctx.Param("itemID")

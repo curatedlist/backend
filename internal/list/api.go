@@ -127,3 +127,21 @@ func (api *API) FavList(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 	}
 }
+
+// UnfavList Favs a list
+func (api *API) UnfavList(ctx *gin.Context) {
+	listID := ctx.Param("id")
+	listDTO := api.service.Get(listID)
+	if listDTO.ID != 0 {
+		userID := ctx.Query("user_id")
+		userDTO := api.userService.Get(userID)
+		if userDTO.ID != 0 {
+			list := api.service.UnfavList(listID, userID)
+			ctx.JSON(http.StatusOK, gin.H{"list": list})
+		} else {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+		}
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}

@@ -51,3 +51,8 @@ func (serv *Service) DeleteItem(itemID string) ItemDTO {
 func (serv *Service) FavList(listID string, userID string) DTO {
 	return serv.repository.FavList(listID, userID).ToList()
 }
+
+// UnfavList favs a list
+func (serv *Service) UnfavList(listID string, userID string) DTO {
+	return serv.repository.UnfavList(listID, userID).ToList()
+}

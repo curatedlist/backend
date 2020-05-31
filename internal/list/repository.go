@@ -202,3 +202,22 @@ func (repo *Repository) FavList(listID string, userID string) Aggregate {
 	listAggregate := repo.Get(listID)
 	return listAggregate
 }
+
+// UnfavList favs a list
+func (repo *Repository) UnfavList(listID string, userID string) Aggregate {
+	db := sqlbuilder.NewDeleteBuilder()
+	db.DeleteFrom("fav")
+	db.Where(db.And(db.Equal("user_id", userID), db.Equal("list_id", listID)))
+	sql, args := db.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	listAggregate := repo.Get(listID)
+	return listAggregate
+}

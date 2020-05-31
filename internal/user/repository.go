@@ -93,7 +93,7 @@ func (repo *Repository) GetByUsername(username string) Aggregate {
 // GetLists a user from repository by its id
 func (repo *Repository) GetLists(userID uint) []ListAggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description")
+	sb.Select("list.id", "list.name", "list.description", "list.deleted")
 	sb.From("list")
 	sb.Where(sb.Equal("list.user_id", userID))
 	sql, args := sb.Build()
@@ -116,7 +116,7 @@ func (repo *Repository) GetLists(userID uint) []ListAggregate {
 // GetFavs a user from repository by its id
 func (repo *Repository) GetFavs(userID uint) []ListAggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
+	sb.Select("list.id", "list.name", "list.description", "list.deleted", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
 	sb.From("list")
 	sb.Join("fav", "list.id = fav.list_id")
 	sb.Join("user", "user.id = list.user_id")

@@ -31,7 +31,7 @@ func NewRepository(db database.DB) Repository {
 // FindAll find alls models from repository
 func (repo *Repository) FindAll() []Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
+	sb.Select("list.id", "list.name", "list.description", "list.deleted", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sql, _ := sb.Build()
@@ -56,7 +56,7 @@ func (repo *Repository) FindAll() []Aggregate {
 // Get a list by ID
 func (repo *Repository) Get(id string) Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("list.id", "list.name", "list.description", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
+	sb.Select("list.id", "list.name", "list.description", "list.deleted", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url", "item.id", "item.name", "item.description", "item.url", "item.pic_url", "item.deleted", "item.list_id")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
 	sb.JoinWithOption("LEFT", "item", "item.list_id = list.id")
@@ -140,6 +140,26 @@ func (repo *Repository) CreateList(userID string, createListCommand commands.Cre
 	listID, _ := result.LastInsertId()
 	listAggregate := repo.Get(strconv.FormatInt(listID, 10))
 	return listAggregate
+}
+
+// DeleteList Create an user
+func (repo *Repository) DeleteList(id string) Aggregate {
+	ub := sqlbuilder.NewUpdateBuilder()
+	ub.Update("list")
+	ub.Set(ub.Assign("deleted", true))
+	ub.Where(ub.Equal("id", id))
+	sql, args := ub.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+	_, err = stmt.Exec(args...)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	aggregate := repo.Get(id)
+	return aggregate
 }
 
 // CreateItem creates a item for a list

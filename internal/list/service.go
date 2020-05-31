@@ -35,6 +35,11 @@ func (serv *Service) CreateList(userID string, createListCommand commands.Create
 	return serv.repository.CreateList(userID, createListCommand).ToList()
 }
 
+// DeleteList creates a list
+func (serv *Service) DeleteList(listID string) DTO {
+	return serv.repository.DeleteList(listID).ToList()
+}
+
 // CreateItem creates a item for a list
 func (serv *Service) CreateItem(userID string, createItemCommand commands.CreateItem) ItemDTO {
 	url := item.GetMetaData(createItemCommand.URL)

@@ -5,6 +5,7 @@ type DTO struct {
 	ID          uint      `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
+	Deleted     bool      `json:"deleted"`
 	Items       []ItemDTO `json:"items"`
 	Owner       OwnerDTO  `json:"owner"`
 	Favs        uint      `json:"favs"`

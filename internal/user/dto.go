@@ -17,5 +17,6 @@ type ListDTO struct {
 	ID          uint   `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Deleted     bool   `json:"deleted"`
 	Owner       DTO    `json:"owner"`
 }

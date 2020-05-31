@@ -62,6 +62,24 @@ func (api *API) CreateList(ctx *gin.Context) {
 	}
 }
 
+// DeleteList Favs a list
+func (api *API) DeleteList(ctx *gin.Context) {
+	listID := ctx.Param("id")
+	listDTO := api.service.Get(listID)
+	if listDTO.ID != 0 {
+		userID := ctx.Query("user_id")
+		userDTO := api.userService.Get(userID)
+		if userDTO.ID != 0 {
+			list := api.service.DeleteList(listID)
+			ctx.JSON(http.StatusOK, gin.H{"list": list})
+		} else {
+			ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+		}
+	} else {
+		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+	}
+}
+
 // CreateItem create a item for a list
 func (api *API) CreateItem(ctx *gin.Context) {
 	listID := ctx.Param("id")

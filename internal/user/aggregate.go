@@ -36,6 +36,7 @@ type ListAggregate struct {
 	ID          sql.NullInt64  `db:"id"`
 	Name        sql.NullString `db:"name"`
 	Description sql.NullString `db:"description"`
+	Deleted     sql.NullBool   `db:"deleted"`
 	Owner       Aggregate      `db:"-"`
 }
 
@@ -51,6 +52,7 @@ func (la ListAggregate) ToList() ListDTO {
 			ID:          uint(la.ID.Int64),
 			Name:        la.Name.String,
 			Description: la.Description.String,
+			Deleted:     la.Deleted.Bool,
 			Owner:       la.Owner.ToUser(),
 		}
 	}

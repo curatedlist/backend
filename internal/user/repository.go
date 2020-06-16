@@ -151,11 +151,11 @@ func (repo *Repository) GetFavs(id int64) []ListAggregate {
 }
 
 // Create an user
-func (repo *Repository) Create(email string) Aggregate {
+func (repo *Repository) Create(email string, iss string) Aggregate {
 	ib := sqlbuilder.NewInsertBuilder()
 	ib.InsertInto("user")
-	ib.Cols("email")
-	ib.Values(email)
+	ib.Cols("email", "iss")
+	ib.Values(email, iss)
 	sql, args := ib.Build()
 	stmt, err := repo.db.DB.Prepare(sql)
 	if err != nil {

@@ -49,8 +49,8 @@ func (serv *Service) GetFavs(user DTO) []ListDTO {
 }
 
 // Create an user
-func (serv *Service) Create(email string) DTO {
-	return serv.repository.Create(email).ToUser()
+func (serv *Service) Create(email string, iss string) DTO {
+	return serv.repository.Create(email, iss).ToUser()
 }
 
 // Update an user

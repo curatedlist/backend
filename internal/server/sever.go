@@ -72,14 +72,14 @@ func (server *Server) registerListRoutes() *Server {
 
 func (server *Server) registerUserRoutes() *Server {
 	users := server.router.Group("/users")
-	users.GET("/id/:id", server.userAPI.Get)
-	users.GET("/email/:email", server.userAPI.GetByEmail)
 	users.GET("/username/:username", server.userAPI.GetByUsername)
 	users.GET("/username/:username/lists", server.userAPI.GetListsByUsername)
 	users.GET("/username/:username/favs", server.userAPI.GetFavsByUsername)
+
 	authenticated := users.Group("/")
 	authenticated.Use(middleware.TokenAuthMiddleware())
 	{
+		authenticated.POST("/login", server.userAPI.Login)
 		authenticated.PUT("/id/:id", server.userAPI.Update)
 		authenticated.POST("/", server.userAPI.Create)
 	}

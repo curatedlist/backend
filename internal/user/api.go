@@ -52,14 +52,21 @@ func (api *API) Get(ctx *gin.Context) {
 	}
 }
 
-// GetByEmail an user by Email
-func (api *API) GetByEmail(ctx *gin.Context) {
-	email := ctx.Param("email")
-	user := api.service.GetByEmail(email)
-	if user.ID != 0 {
-		ctx.JSON(http.StatusOK, gin.H{"user": user})
-	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
+// Login an user
+func (api *API) Login(ctx *gin.Context) {
+	user := api.AuthUser(ctx)
+	if !ctx.IsAborted() {
+		var command commands.Login
+		err := ctx.BindJSON(&command)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		if user.Email == command.Email {
+			ctx.JSON(http.StatusOK, gin.H{"user": user})
+		} else {
+			ctx.JSON(http.StatusUnauthorized, gin.H{"status": "UnAuthorized user login"})
+		}
 	}
 }
 
@@ -100,13 +107,18 @@ func (api *API) GetFavsByUsername(ctx *gin.Context) {
 
 // Create an user
 func (api *API) Create(ctx *gin.Context) {
-	var registerCommand commands.Register
-	err := ctx.BindJSON(&registerCommand)
-	if err != nil {
-		panic(err.Error())
+	iss := ctx.GetString("iss")
+	if iss != "" {
+		var command commands.Register
+		err := ctx.BindJSON(&command)
+		if err != nil {
+			panic(err.Error())
+		}
+		user := api.service.Create(command.Email, iss)
+		ctx.JSON(http.StatusOK, gin.H{"user": user})
+	} else {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"status": "Invalid token"})
 	}
-	user := api.service.Create(registerCommand.Email)
-	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
 
 // Update an user

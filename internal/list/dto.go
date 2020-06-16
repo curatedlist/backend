@@ -1,8 +1,8 @@
 package list
 
-// DTO the DTO for List
+// DTO for List
 type DTO struct {
-	ID          uint      `json:"id"`
+	ID          int64     `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Deleted     bool      `json:"deleted"`
@@ -11,20 +11,20 @@ type DTO struct {
 	Favs        uint      `json:"favs"`
 }
 
-// ItemDTO the DTO for item
+// ItemDTO for item
 type ItemDTO struct {
-	ID          uint   `json:"id"`
+	ID          int64  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
 	PicURL      string `json:"pic_url"`
 	Deleted     bool   `json:"deleted"`
-	ListID      uint   `json:"list_id"`
+	ListID      int64  `json:"list_id"`
 }
 
-// OwnerDTO the DTO for Owner
+// OwnerDTO for Owner
 type OwnerDTO struct {
-	ID        uint   `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Username  string `json:"username"`

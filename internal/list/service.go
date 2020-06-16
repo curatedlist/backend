@@ -5,59 +5,59 @@ import (
 	"backend/internal/list/commands"
 )
 
-// Service is a service that provides basic operations over Lists
+// Service provides basic operations over Lists
 type Service struct {
 	repository Repository
 }
 
-// NewService is a Constructor of the ListService
+// NewService returns a new Service
 func NewService(repository Repository) Service {
 	return Service{repository: repository}
 }
 
-// FindAll finds all the lists availables
+// FindAll the available lists
 func (serv *Service) FindAll() []DTO {
 	return ToLists(serv.repository.FindAll())
 }
 
-// Get a list by id
-func (serv *Service) Get(id string) DTO {
+// Get a list id
+func (serv *Service) Get(id int64) DTO {
 	return serv.repository.Get(id).ToList()
 }
 
-// GetItem a item by id
-func (serv *Service) GetItem(id string) ItemDTO {
+// GetItem of a list
+func (serv *Service) GetItem(id int64) ItemDTO {
 	return serv.repository.GetItem(id).ToItem()
 }
 
-// CreateList creates a list
-func (serv *Service) CreateList(userID string, createListCommand commands.CreateList) DTO {
-	return serv.repository.CreateList(userID, createListCommand).ToList()
+// Create a list
+func (serv *Service) Create(userID int64, command commands.CreateList) DTO {
+	return serv.repository.Create(userID, command).ToList()
 }
 
-// DeleteList creates a list
-func (serv *Service) DeleteList(listID string) DTO {
-	return serv.repository.DeleteList(listID).ToList()
+// Delete a list
+func (serv *Service) Delete(id int64) DTO {
+	return serv.repository.Delete(id).ToList()
 }
 
-// CreateItem creates a item for a list
-func (serv *Service) CreateItem(userID string, createItemCommand commands.CreateItem) ItemDTO {
-	url := item.GetMetaData(createItemCommand.URL)
-	createItemCommand.PicURL = url
-	return serv.repository.CreateItem(userID, createItemCommand).ToItem()
+// CreateItem for a list
+func (serv *Service) CreateItem(id int64, command commands.CreateItem) ItemDTO {
+	url := item.GetMetaData(command.URL)
+	command.PicURL = url
+	return serv.repository.CreateItem(id, command).ToItem()
 }
 
-// DeleteItem creates a item for a list
-func (serv *Service) DeleteItem(itemID string) ItemDTO {
+// DeleteItem from a list
+func (serv *Service) DeleteItem(itemID int64) ItemDTO {
 	return serv.repository.DeleteItem(itemID).ToItem()
 }
 
-// FavList favs a list
-func (serv *Service) FavList(listID string, userID string) DTO {
-	return serv.repository.FavList(listID, userID).ToList()
+// Fav a list
+func (serv *Service) Fav(id int64, userID int64) DTO {
+	return serv.repository.Fav(id, userID).ToList()
 }
 
-// UnfavList favs a list
-func (serv *Service) UnfavList(listID string, userID string) DTO {
-	return serv.repository.UnfavList(listID, userID).ToList()
+// Unfav a list
+func (serv *Service) Unfav(id int64, userID int64) DTO {
+	return serv.repository.Unfav(id, userID).ToList()
 }

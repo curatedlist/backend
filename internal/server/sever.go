@@ -2,6 +2,7 @@ package server
 
 import (
 	"backend/internal/list"
+	"backend/internal/middleware"
 	"backend/internal/user"
 
 	"github.com/gin-contrib/cors"
@@ -31,7 +32,10 @@ func (server *Server) Run() *Server {
 }
 
 func (server *Server) withCors() *Server {
-	server.router.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	config.AllowAllOrigins = true
+	server.router.Use(cors.New(config))
 	return server
 }
 
@@ -52,12 +56,17 @@ func (server *Server) registerListRoutes() *Server {
 	lists := server.router.Group("/lists")
 	lists.GET("/", server.listAPI.FindAll)
 	lists.GET("/id/:id", server.listAPI.Get)
-	lists.POST("/", server.listAPI.CreateList)
-	lists.DELETE("/:id", server.listAPI.DeleteList)
-	lists.POST("/:id/items/", server.listAPI.CreateItem)
-	lists.PATCH("/:id/items/:itemID/delete", server.listAPI.DeleteItem)
-	lists.POST("/:id/fav", server.listAPI.FavList)
-	lists.DELETE("/:id/unfav", server.listAPI.UnfavList)
+
+	authenticated := lists.Group("/")
+	authenticated.Use(middleware.TokenAuthMiddleware())
+	{
+		authenticated.POST("/", server.listAPI.Create)
+		authenticated.DELETE("/:id", server.listAPI.Delete)
+		authenticated.POST("/:id/items/", server.listAPI.CreateItem)
+		authenticated.PATCH("/:id/items/:itemID/delete", server.listAPI.DeleteItem)
+		authenticated.POST("/:id/fav", server.listAPI.Fav)
+		authenticated.DELETE("/:id/unfav", server.listAPI.Unfav)
+	}
 	return server
 }
 
@@ -68,8 +77,11 @@ func (server *Server) registerUserRoutes() *Server {
 	users.GET("/username/:username", server.userAPI.GetByUsername)
 	users.GET("/username/:username/lists", server.userAPI.GetListsByUsername)
 	users.GET("/username/:username/favs", server.userAPI.GetFavsByUsername)
-	users.PUT("/id/:id", server.userAPI.UpdateUser)
-	users.POST("/", server.userAPI.CreateUser)
-
+	authenticated := users.Group("/")
+	authenticated.Use(middleware.TokenAuthMiddleware())
+	{
+		authenticated.PUT("/id/:id", server.userAPI.Update)
+		authenticated.POST("/", server.userAPI.Create)
+	}
 	return server
 }

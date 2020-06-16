@@ -1,8 +1,8 @@
 package user
 
-// DTO the DTO for User
+// DTO for User
 type DTO struct {
-	ID        uint   `json:"id"`
+	ID        int64  `json:"id"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	Username  string `json:"username"`
@@ -12,9 +12,9 @@ type DTO struct {
 	Favs      []uint `json:"favs"`
 }
 
-// ListDTO the DTO for List
+// ListDTO for List
 type ListDTO struct {
-	ID          uint   `json:"id"`
+	ID          int64  `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Deleted     bool   `json:"deleted"`

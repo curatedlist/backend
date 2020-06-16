@@ -2,7 +2,9 @@ package user
 
 import (
 	"backend/internal/user/commands"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +19,31 @@ func NewAPI(serv Service) API {
 	return API{service: serv}
 }
 
+// AuthUser gets the auth user if any
+func (api *API) AuthUser(ctx *gin.Context) DTO {
+	iss := ctx.GetString("iss")
+	if iss != "" {
+		userDTO := api.service.GetByIss(iss)
+		if userDTO.ID != 0 {
+			return userDTO
+		}
+	}
+	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "Invalid token"})
+	return DTO{}
+}
+
 // Get a user by id
 func (api *API) Get(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(
+			http.StatusBadRequest,
+			gin.H{
+				"status": fmt.Sprintf("Not a valid identifier of a list: %s, error: %s", ctx.Param("id"), err.Error()),
+			},
+		)
+	}
+
 	user := api.service.Get(id)
 	if user.ID != 0 {
 		ctx.JSON(http.StatusOK, gin.H{"user": user})
@@ -55,7 +79,7 @@ func (api *API) GetListsByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	user := api.service.GetByUsername(username)
 	if user.ID != 0 {
-		lists := api.service.GetListsForUser(user)
+		lists := api.service.GetLists(user)
 		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
@@ -67,32 +91,34 @@ func (api *API) GetFavsByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	user := api.service.GetByUsername(username)
 	if user.ID != 0 {
-		lists := api.service.GetFavsForUser(user)
+		lists := api.service.GetFavs(user)
 		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
 	} else {
 		ctx.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound})
 	}
 }
 
-// CreateUser create an user
-func (api *API) CreateUser(ctx *gin.Context) {
+// Create an user
+func (api *API) Create(ctx *gin.Context) {
 	var registerCommand commands.Register
 	err := ctx.BindJSON(&registerCommand)
 	if err != nil {
 		panic(err.Error())
 	}
-	user := api.service.CreateUser(registerCommand.Email)
+	user := api.service.Create(registerCommand.Email)
 	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }
 
-// UpdateUser create an user
-func (api *API) UpdateUser(ctx *gin.Context) {
-	id := ctx.Param("id")
-	var updateCommand commands.Update
-	err := ctx.BindJSON(&updateCommand)
-	if err != nil {
-		panic(err.Error())
+// Update an user
+func (api *API) Update(ctx *gin.Context) {
+	userDTO := api.AuthUser(ctx)
+	if !ctx.IsAborted() {
+		var command commands.Update
+		err := ctx.BindJSON(&command)
+		if err != nil {
+			panic(err.Error())
+		}
+		user := api.service.Update(userDTO.ID, command)
+		ctx.JSON(http.StatusOK, gin.H{"user": user})
 	}
-	user := api.service.UpdateUser(id, updateCommand)
-	ctx.JSON(http.StatusOK, gin.H{"user": user})
 }

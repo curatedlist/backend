@@ -14,23 +14,28 @@ func NewService(repository Repository) Service {
 	return Service{repository: repository}
 }
 
-// Get a list by id
-func (serv *Service) Get(id string) DTO {
+// Get a user
+func (serv *Service) Get(id int64) DTO {
 	return serv.repository.GetByID(id).ToUser()
 }
 
-// GetByEmail a list by email
+// GetByEmail a user
 func (serv *Service) GetByEmail(email string) DTO {
 	return serv.repository.GetByEmail(email).ToUser()
 }
 
-// GetByUsername a list by email
+// GetByIss a user
+func (serv *Service) GetByIss(iss string) DTO {
+	return serv.repository.GetByIss(iss).ToUser()
+}
+
+// GetByUsername a user
 func (serv *Service) GetByUsername(email string) DTO {
 	return serv.repository.GetByUsername(email).ToUser()
 }
 
-// GetListsForUser get lists for an user
-func (serv *Service) GetListsForUser(user DTO) []ListDTO {
+// GetLists get lists for an user
+func (serv *Service) GetLists(user DTO) []ListDTO {
 	lists := ToLists(serv.repository.GetLists(user.ID))
 	for i := range lists {
 		lists[i].Owner = user
@@ -38,17 +43,17 @@ func (serv *Service) GetListsForUser(user DTO) []ListDTO {
 	return lists
 }
 
-// GetFavsForUser get favorites lists for an user
-func (serv *Service) GetFavsForUser(user DTO) []ListDTO {
+// GetFavs get favorites lists for an user
+func (serv *Service) GetFavs(user DTO) []ListDTO {
 	return ToLists(serv.repository.GetFavs(user.ID))
 }
 
-// CreateUser creates an user
-func (serv *Service) CreateUser(email string) DTO {
-	return serv.repository.CreateUser(email).ToUser()
+// Create an user
+func (serv *Service) Create(email string) DTO {
+	return serv.repository.Create(email).ToUser()
 }
 
-// UpdateUser creates an user
-func (serv *Service) UpdateUser(id string, updateCommand commands.Update) DTO {
-	return serv.repository.UpdateUser(id, updateCommand).ToUser()
+// Update an user
+func (serv *Service) Update(id int64, updateCommand commands.Update) DTO {
+	return serv.repository.Update(id, updateCommand).ToUser()
 }

@@ -2,7 +2,7 @@ package user
 
 import "database/sql"
 
-// Aggregate the Aggregate for User
+// Aggregate for User
 type Aggregate struct {
 	ID        sql.NullInt64  `db:"id"`
 	Name      sql.NullString `db:"name"`
@@ -14,11 +14,11 @@ type Aggregate struct {
 	Lists     uint           `db:"-"`
 }
 
-// ToUser transforms a User into a DTO
+// ToUser transforms a UserAggregate into a UserDTO
 func (agg Aggregate) ToUser() DTO {
 	if agg.ID.Valid {
 		return DTO{
-			ID:        uint(agg.ID.Int64),
+			ID:        agg.ID.Int64,
 			Name:      agg.Name.String,
 			Email:     agg.Email.String,
 			Username:  agg.Username.String,
@@ -31,7 +31,7 @@ func (agg Aggregate) ToUser() DTO {
 	return DTO{}
 }
 
-// ListAggregate the DTO for List
+// ListAggregate for List
 type ListAggregate struct {
 	ID          sql.NullInt64  `db:"id"`
 	Name        sql.NullString `db:"name"`
@@ -40,16 +40,16 @@ type ListAggregate struct {
 	Owner       Aggregate      `db:"-"`
 }
 
-// FavAggregate the DTO for Favs
+// FavAggregate for Favs
 type FavAggregate struct {
 	ListID sql.NullInt64 `db:"list_id"`
 }
 
-// ToList transforms a item into a itemDTO
+// ToList transforms a ListAggregate into a ListDTO
 func (la ListAggregate) ToList() ListDTO {
 	if la.ID.Valid {
 		return ListDTO{
-			ID:          uint(la.ID.Int64),
+			ID:          la.ID.Int64,
 			Name:        la.Name.String,
 			Description: la.Description.String,
 			Deleted:     la.Deleted.Bool,
@@ -59,7 +59,7 @@ func (la ListAggregate) ToList() ListDTO {
 	return ListDTO{}
 }
 
-//ToFavs to favs
+//ToFavs transforms a slice of FavAggregate into a slice of integers
 func ToFavs(favs []FavAggregate) []uint {
 	favlist := make([]uint, len(favs))
 	for i, fav := range favs {
@@ -68,7 +68,7 @@ func ToFavs(favs []FavAggregate) []uint {
 	return favlist
 }
 
-// ToLists transforms an array of Lists from the database into a ListDTO
+// ToLists transforms a slice of ListAggregate into a slice of ListDTO
 func ToLists(lists []ListAggregate) []ListDTO {
 	listDTOs := make([]ListDTO, len(lists))
 

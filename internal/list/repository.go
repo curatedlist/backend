@@ -37,6 +37,8 @@ func (repo *Repository) FindAll(filter string) []Aggregate {
 		sb.Join("fav", "fav.list_id = list.id")
 		sb.OrderBy("COUNT(*)").Desc()
 		sb.GroupBy("list.id")
+	} else if filter == "newest" {
+		sb.OrderBy("list.created_at").Desc()
 	}
 	sb.Limit(5)
 	sql, _ := sb.Build()

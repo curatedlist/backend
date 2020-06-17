@@ -16,8 +16,8 @@ func NewService(repository Repository) Service {
 }
 
 // FindAll the available lists
-func (serv *Service) FindAll() []DTO {
-	return ToLists(serv.repository.FindAll())
+func (serv *Service) FindAll(filter string) []DTO {
+	return ToLists(serv.repository.FindAll(filter))
 }
 
 // Get a list id

@@ -28,11 +28,17 @@ func NewRepository(db database.DB) Repository {
 }
 
 // FindAll list
-func (repo *Repository) FindAll() []Aggregate {
+func (repo *Repository) FindAll(filter string) []Aggregate {
 	sb := sqlbuilder.NewSelectBuilder()
 	sb.Select("list.id", "list.name", "list.description", "list.deleted", "user.id", "user.name", "user.email", "user.username", "user.bio", "user.avatar_url")
 	sb.From("list")
 	sb.Join("user", "user.id = list.user_id")
+	if filter == "trending" {
+		sb.Join("fav", "fav.list_id = list.id")
+		sb.OrderBy("COUNT(*)").Desc()
+		sb.GroupBy("list.id")
+	}
+	sb.Limit(5)
 	sql, _ := sb.Build()
 	rows, err := repo.db.DB.Query(sql)
 	if err != nil {

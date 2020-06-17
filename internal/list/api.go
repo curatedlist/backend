@@ -36,7 +36,8 @@ func (api *API) AuthUser(ctx *gin.Context) user.DTO {
 
 // FindAll finds all available lists
 func (api *API) FindAll(ctx *gin.Context) {
-	lists := api.service.FindAll()
+	filter := ctx.Query("filter_by")
+	lists := api.service.FindAll(filter)
 	if len(lists) > 0 {
 		ctx.JSON(http.StatusOK, gin.H{"lists": lists})
 	} else {

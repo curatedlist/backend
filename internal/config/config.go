@@ -6,9 +6,10 @@ import (
 
 //DBConfig is the config of the database
 type DBConfig struct {
-	Username string
-	Password string
-	URL      string
+	Username     string
+	Password     string
+	URL          string
+	DatabaseName string
 }
 
 // Config of the App
@@ -20,9 +21,10 @@ type Config struct {
 func New() *Config {
 	return &Config{
 		DB: DBConfig{
-			Username: get("DATABASE_USER", "test"),
-			Password: get("DATABASE_PASS", "test"),
-			URL:      get("DATABASE_URL", "tcp(localhost:3306)"),
+			Username:     get("DATABASE_USER", "test"),
+			Password:     get("DATABASE_PASS", "test"),
+			URL:          get("DATABASE_URL", "tcp(localhost:3306)"),
+			DatabaseName: get("DATABASE_NAME", "curatedlist_test"),
 		},
 	}
 }

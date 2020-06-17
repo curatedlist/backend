@@ -16,7 +16,7 @@ type DB struct {
 // NewDB returns a Repository
 func NewDB(conf config.DBConfig) DB {
 
-	connectionString := fmt.Sprintf("%s:%s@%s/curatedlist", conf.Username, conf.Password, conf.URL)
+	connectionString := fmt.Sprintf("%s:%s@%s/%s", conf.Username, conf.Password, conf.URL, conf.DatabaseName)
 	d, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		panic(err.Error())

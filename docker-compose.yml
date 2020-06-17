@@ -10,6 +10,7 @@ services:
             DATABASE_USER: test
             DATABASE_PASS: test
             DATABASE_URL: unix(/cloudsql/curatedlist-project:europe-west1:curatedlist)
+            DATABASE_NAME: curatedlist
         
     cloud-sql-proxy:
         image: gcr.io/cloudsql-docker/gce-proxy:1.11

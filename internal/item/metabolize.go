@@ -14,12 +14,15 @@ type MetaData struct {
 
 // GetMetaData gets the picture metadata
 func GetMetaData(url string) string {
-	res, _ := http.Get(url)
+	res, err := http.Get(url)
+	if err != nil {
+		return ""
+	}
 
 	data := new(MetaData)
 	doc, err := goquery.NewDocumentFromReader((res.Body))
 	if err != nil {
-		panic(err)
+		return ""
 	}
 
 	doc.Find("meta").Each(func(i int, s *goquery.Selection) {

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 )
 
@@ -19,12 +20,21 @@ type Config struct {
 
 // New config
 func New() *Config {
+	username := get("DATABASE_USER", "test")
+	password := get("DATABASE_PASS", "test")
+	url := get("DATABASE_URL", "tcp(localhost:3306)")
+	databaseName := get("DATABASE_NAME", "curatedlist_test")
+	log.Printf(`Generating configuration:
+	- Database user: %s
+	- Database url: %s
+	- Database name: %s`,
+		username, url, databaseName)
 	return &Config{
 		DB: DBConfig{
-			Username:     get("DATABASE_USER", "test"),
-			Password:     get("DATABASE_PASS", "test"),
-			URL:          get("DATABASE_URL", "tcp(localhost:3306)"),
-			DatabaseName: get("DATABASE_NAME", "curatedlist_test"),
+			Username:     username,
+			Password:     password,
+			URL:          url,
+			DatabaseName: databaseName,
 		},
 	}
 }

@@ -3,6 +3,7 @@ package user
 import (
 	"backend/internal/user/commands"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -22,6 +23,7 @@ func NewAPI(serv Service) API {
 // AuthUser gets the auth user if any
 func (api *API) AuthUser(ctx *gin.Context) DTO {
 	iss := ctx.GetString("iss")
+	log.Printf("Authenticated call, iss: %s goes into %s", iss, ctx.Request.RequestURI)
 	if iss != "" {
 		userDTO := api.service.GetByIss(iss)
 		if userDTO.ID != 0 {

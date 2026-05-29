@@ -21,13 +21,21 @@ func NewAPI(serv Service, userServ user.Service) API {
 	return API{service: serv, userService: userServ}
 }
 
-// AuthUser gets the auth user if any
+// AuthUser gets the auth user if any. Resolves by Google subject (user.iss),
+// falling back to a verified-email match that re-links a legacy Magic account.
 func (api *API) AuthUser(ctx *gin.Context) user.DTO {
 	iss := ctx.GetString("iss")
+	email := ctx.GetString("email")
 	if iss != "" {
-		user := api.userService.GetByIss(iss)
-		if user.ID != 0 {
-			return user
+		u := api.userService.GetByIss(iss)
+		if u.ID != 0 {
+			return u
+		}
+		if email != "" {
+			existing := api.userService.GetByEmail(email)
+			if existing.ID != 0 {
+				return api.userService.Relink(existing.ID, iss)
+			}
 		}
 	}
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"status": "The user can not perform this action"})

@@ -18,5 +18,5 @@ func main() {
 	listService := list.NewService(listRepository)
 	listAPI := list.NewAPI(listService, userService)
 
-	server.Init(listAPI, userAPI).Run()
+	server.Init(listAPI, userAPI, conf.GoogleClientID).Run()
 }

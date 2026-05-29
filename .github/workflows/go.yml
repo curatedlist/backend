@@ -44,6 +44,8 @@ jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
+    # Only deploy on pushes to master, never on pull requests.
+    if: github.event_name == 'push'
 
     steps:
     - name: Checkout

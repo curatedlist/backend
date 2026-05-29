@@ -15,7 +15,8 @@ type DBConfig struct {
 
 // Config of the App
 type Config struct {
-	DB DBConfig
+	DB             DBConfig
+	GoogleClientID string
 }
 
 // New config
@@ -24,11 +25,13 @@ func New() *Config {
 	password := get("DATABASE_PASS", "test")
 	url := get("DATABASE_URL", "tcp(localhost:3306)")
 	databaseName := get("DATABASE_NAME", "curatedlist_test")
+	googleClientID := get("GOOGLE_CLIENT_ID", "")
 	log.Printf(`Generating configuration:
 	- Database user: %s
 	- Database url: %s
-	- Database name: %s`,
-		username, url, databaseName)
+	- Database name: %s
+	- Google client id set: %t`,
+		username, url, databaseName, googleClientID != "")
 	return &Config{
 		DB: DBConfig{
 			Username:     username,
@@ -36,6 +39,7 @@ func New() *Config {
 			URL:          url,
 			DatabaseName: databaseName,
 		},
+		GoogleClientID: googleClientID,
 	}
 }
 

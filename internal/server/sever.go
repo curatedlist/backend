@@ -12,14 +12,15 @@ import (
 
 // Server the http Server
 type Server struct {
-	router  *gin.Engine
-	listAPI list.API
-	userAPI user.API
+	router         *gin.Engine
+	listAPI        list.API
+	userAPI        user.API
+	googleClientID string
 }
 
 // Init initialize the http server
-func Init(listAPI list.API, userAPI user.API) *Server {
-	server := Server{router: gin.Default(), listAPI: listAPI, userAPI: userAPI}
+func Init(listAPI list.API, userAPI user.API, googleClientID string) *Server {
+	server := Server{router: gin.Default(), listAPI: listAPI, userAPI: userAPI, googleClientID: googleClientID}
 	return server.withProm().withCors().registerAllRoutes()
 }
 
@@ -65,7 +66,7 @@ func (server *Server) registerListRoutes() *Server {
 	lists.GET("/id/:id", server.listAPI.Get)
 
 	authenticated := lists.Group("/")
-	authenticated.Use(middleware.TokenAuthMiddleware())
+	authenticated.Use(middleware.TokenAuthMiddleware(server.googleClientID))
 	{
 		authenticated.POST("/", server.listAPI.Create)
 		authenticated.DELETE("/:id", server.listAPI.Delete)
@@ -84,7 +85,7 @@ func (server *Server) registerUserRoutes() *Server {
 	users.GET("/username/:username/favs", server.userAPI.GetFavsByUsername)
 
 	authenticated := users.Group("/")
-	authenticated.Use(middleware.TokenAuthMiddleware())
+	authenticated.Use(middleware.TokenAuthMiddleware(server.googleClientID))
 	{
 		authenticated.POST("/login", server.userAPI.Login)
 		authenticated.PUT("/id/:id", server.userAPI.Update)

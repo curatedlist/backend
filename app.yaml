@@ -1,2 +1,5 @@
+# NOTE: Stale / unused. This is an App Engine (go112) descriptor, but the backend
+# actually deploys to Google Cloud Run via .github/workflows/go.yml (gcloud run deploy).
+# Kept only for reference; nothing in the current pipeline reads this file.
 service: api
 runtime: go112 # replace with go111 for Go 1.11

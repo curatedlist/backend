@@ -48,6 +48,11 @@ func (serv *Service) GetFavs(user DTO) []ListDTO {
 	return ToLists(serv.repository.GetFavs(user.ID))
 }
 
+// Relink points an existing user at a new auth identity (the Google subject).
+func (serv *Service) Relink(id int64, iss string) DTO {
+	return serv.repository.UpdateIss(id, iss).ToUser()
+}
+
 // Create an user
 func (serv *Service) Create(email string, iss string) DTO {
 	return serv.repository.Create(email, iss).ToUser()

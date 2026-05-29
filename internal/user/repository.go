@@ -172,6 +172,27 @@ func (repo *Repository) Create(email string, iss string) Aggregate {
 	return user
 }
 
+// UpdateIss re-links a user row to a new auth identity (the Google subject).
+// Used to migrate a pre-existing (Magic) account to Google Auth, matched by email.
+func (repo *Repository) UpdateIss(id int64, iss string) Aggregate {
+	ub := sqlbuilder.NewUpdateBuilder()
+	ub.Update("user")
+	ub.Set(ub.Assign("iss", iss))
+	ub.Where(ub.Equal("id", id))
+	sql, args := ub.Build()
+	stmt, err := repo.db.DB.Prepare(sql)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	_, err = stmt.Exec(args...)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return repo.GetByID(id)
+}
+
 // Update an user
 func (repo *Repository) Update(id int64, command commands.Update) Aggregate {
 	ub := sqlbuilder.NewUpdateBuilder()

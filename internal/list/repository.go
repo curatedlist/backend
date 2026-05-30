@@ -41,8 +41,8 @@ func (repo *Repository) FindAll(filter string) []Aggregate {
 		sb.OrderBy("list.created_at").Desc()
 	}
 	sb.Limit(5)
-	sql, _ := sb.Build()
-	rows, err := repo.db.DB.Query(sql)
+	sql, args := sb.Build()
+	rows, err := repo.db.DB.Query(sql, args...)
 	if err != nil {
 		panic(err.Error())
 	}

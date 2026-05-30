@@ -1,6 +1,6 @@
 # Use the offical Golang image to create a build artifact.
 # https://hub.docker.com/_/golang
-FROM golang:1.22-alpine AS builder
+FROM golang:1.25-alpine AS builder
 RUN apk add --no-cache git
 
 # Copy local code to the container image.

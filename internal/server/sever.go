@@ -97,8 +97,10 @@ func (server *Server) registerUserRoutes() *Server {
 }
 
 func (server *Server) registerSearchRoutes() *Server {
+	// Public: searching external catalogs (Open Library / TMDB / iTunes) exposes
+	// no private data, and the typeahead fires on every keystroke — gating it
+	// behind the short-lived Google ID token just produced spurious 401s.
 	searchGroup := server.router.Group("/search")
-	searchGroup.Use(middleware.TokenAuthMiddleware(server.googleClientID))
 	{
 		searchGroup.GET("/", server.searchAPI.Search)
 	}

@@ -3,6 +3,7 @@ package server
 import (
 	"backend/internal/list"
 	"backend/internal/middleware"
+	"backend/internal/search"
 	"backend/internal/user"
 
 	"github.com/gin-contrib/cors"
@@ -15,12 +16,13 @@ type Server struct {
 	router         *gin.Engine
 	listAPI        list.API
 	userAPI        user.API
+	searchAPI      search.API
 	googleClientID string
 }
 
 // Init initialize the http server
-func Init(listAPI list.API, userAPI user.API, googleClientID string) *Server {
-	server := Server{router: gin.Default(), listAPI: listAPI, userAPI: userAPI, googleClientID: googleClientID}
+func Init(listAPI list.API, userAPI user.API, searchAPI search.API, googleClientID string) *Server {
+	server := Server{router: gin.Default(), listAPI: listAPI, userAPI: userAPI, searchAPI: searchAPI, googleClientID: googleClientID}
 	return server.withProm().withCors().registerAllRoutes()
 }
 
@@ -48,7 +50,7 @@ func (server *Server) withCors() *Server {
 }
 
 func (server *Server) registerAllRoutes() *Server {
-	return server.registerStatusRoutes().registerListRoutes().registerUserRoutes()
+	return server.registerStatusRoutes().registerListRoutes().registerUserRoutes().registerSearchRoutes()
 }
 
 func (server *Server) registerStatusRoutes() *Server {
@@ -90,6 +92,15 @@ func (server *Server) registerUserRoutes() *Server {
 		authenticated.POST("/login", server.userAPI.Login)
 		authenticated.PUT("/id/:id", server.userAPI.Update)
 		authenticated.POST("/", server.userAPI.Create)
+	}
+	return server
+}
+
+func (server *Server) registerSearchRoutes() *Server {
+	searchGroup := server.router.Group("/search")
+	searchGroup.Use(middleware.TokenAuthMiddleware(server.googleClientID))
+	{
+		searchGroup.GET("/", server.searchAPI.Search)
 	}
 	return server
 }

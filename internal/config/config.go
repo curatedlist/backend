@@ -17,6 +17,7 @@ type DBConfig struct {
 type Config struct {
 	DB             DBConfig
 	GoogleClientID string
+	TMDBKey        string
 }
 
 // New config
@@ -26,12 +27,14 @@ func New() *Config {
 	url := get("DATABASE_URL", "tcp(localhost:3306)")
 	databaseName := get("DATABASE_NAME", "curatedlist_test")
 	googleClientID := get("GOOGLE_CLIENT_ID", "")
+	tmdbKey := get("TMDB_API_KEY", "")
 	log.Printf(`Generating configuration:
 	- Database user: %s
 	- Database url: %s
 	- Database name: %s
-	- Google client id set: %t`,
-		username, url, databaseName, googleClientID != "")
+	- Google client id set: %t
+	- TMDB api key set: %t`,
+		username, url, databaseName, googleClientID != "", tmdbKey != "")
 	return &Config{
 		DB: DBConfig{
 			Username:     username,
@@ -40,6 +43,7 @@ func New() *Config {
 			DatabaseName: databaseName,
 		},
 		GoogleClientID: googleClientID,
+		TMDBKey:        tmdbKey,
 	}
 }
 

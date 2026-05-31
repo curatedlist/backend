@@ -40,10 +40,12 @@ func (serv *Service) Delete(id int64) DTO {
 	return serv.repository.Delete(id).ToList()
 }
 
-// CreateItem for a list
+// CreateItem for a list. When the client already supplied a picture (e.g. from
+// an external-catalog search result), keep it; otherwise scrape og:image.
 func (serv *Service) CreateItem(id int64, command commands.CreateItem) ItemDTO {
-	url := item.GetMetaData(command.URL)
-	command.PicURL = url
+	if command.PicURL == "" {
+		command.PicURL = item.GetMetaData(command.URL)
+	}
 	return serv.repository.CreateItem(id, command).ToItem()
 }
 
